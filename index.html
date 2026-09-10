@@ -1,196 +1,850 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>BOSSING OMR Camera</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <title>School OMR Scanner</title>
+
+  <script
+    src="https://unpkg.com/html5-qrcode"
+    type="text/javascript">
+  </script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f3f4f6;
-      text-align: center;
+
+    * {
+      box-sizing: border-box;
     }
 
-    .box {
+    body {
+      margin: 0;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .container {
       max-width: 500px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
     }
 
-    h1 {
+    .header {
+      background: #1e3a8a;
+      color: white;
+      padding: 18px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .header h1 {
+      margin: 0;
       font-size: 24px;
+    }
+
+    .header p {
+      margin: 7px 0 0;
+      font-size: 14px;
+    }
+
+    .step {
+      background: white;
+      border-radius: 15px;
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    .step-number {
+      font-size: 14px;
+      font-weight: bold;
+      color: #64748b;
       margin-bottom: 5px;
     }
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 20px;
+    .step-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .step-instruction {
+      font-size: 15px;
+      color: #475569;
+    }
+
+    .active-step {
+      border: 3px solid #2563eb;
+    }
+
+    .completed-step {
+      border: 3px solid #16a34a;
+    }
+
+    .waiting-step {
+      opacity: 0.55;
     }
 
     #reader {
       width: 100%;
-      max-width: 420px;
-      margin: auto;
+      max-width: 450px;
+      margin: 15px auto;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      background: #e2e8f0;
+      text-align: center;
+      font-size: 17px;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .data-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      word-break: break-all;
+      font-size: 16px;
+    }
+
+    .check {
+      font-size: 20px;
+      margin-right: 6px;
     }
 
     button {
       width: 100%;
+      border: none;
+      border-radius: 12px;
       padding: 16px;
-      margin-top: 15px;
       font-size: 18px;
       font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      background: #1769aa;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .primary-button {
+      background: #2563eb;
       color: white;
     }
 
-    button:active {
-      transform: scale(0.98);
+    .reset-button {
+      background: #475569;
+      color: white;
     }
 
-    #status {
-      margin-top: 20px;
-      padding: 14px;
-      border-radius: 10px;
-      background: #eef2f7;
-      font-size: 17px;
-      word-break: break-word;
+    .hidden {
+      display: none;
     }
 
-    .instruction {
+    .footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
       margin-top: 15px;
-      font-size: 14px;
-      color: #555;
     }
+
   </style>
+
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-  <h1>🏫 BOSSING OMR SCANNER</h1>
-
-  <div class="subtitle">
-    QR Camera
+  <div class="header">
+    <h1>🏫 SCHOOL OMR SCANNER</h1>
+    <p>Student → Test → Answer Sheet</p>
   </div>
 
-  <div id="reader"></div>
 
-  <button id="startButton" onclick="startCamera()">
-    📷 START CAMERA
-  </button>
+  <!-- STEP 1 -->
 
-  <div id="status">
-    Camera is ready.
+  <div id="studentStep"
+       class="step active-step">
+
+    <div class="step-number">
+      STEP 1
+    </div>
+
+    <div class="step-title">
+      👤 SCAN STUDENT QR
+    </div>
+
+    <div class="step-instruction">
+      Point the camera at the student's permanent QR code.
+    </div>
+
+    <div id="studentData"
+         class="data-box hidden">
+    </div>
+
   </div>
 
-  <div class="instruction">
-    Point the camera at the QR code.
+
+  <!-- STEP 2 -->
+
+  <div id="testStep"
+       class="step waiting-step">
+
+    <div class="step-number">
+      STEP 2
+    </div>
+
+    <div class="step-title">
+      📝 SCAN TEST QR
+    </div>
+
+    <div class="step-instruction">
+      Scan the QR code printed on the answer sheet.
+    </div>
+
+    <div id="testData"
+         class="data-box hidden">
+    </div>
+
+  </div>
+
+
+  <!-- CAMERA -->
+
+  <div class="step">
+
+    <div id="reader"></div>
+
+    <button
+      id="startButton"
+      class="primary-button"
+      onclick="startCamera()">
+
+      📷 START CAMERA
+
+    </button>
+
+    <button
+      id="resetButton"
+      class="reset-button"
+      onclick="resetScanner()">
+
+      🔄 START NEW SHEET
+
+    </button>
+
+    <div id="status"
+         class="status info">
+
+      Preparing scanner...
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+    School OMR Scanner • BOSSING Camera
   </div>
 
 </div>
+
 
 <script>
 
 let scanner = null;
 let cameraRunning = false;
+
+let currentStep = "student";
+
+let studentQR = "";
+let testQR = "";
+
 let lastCode = "";
 let lastScanTime = 0;
 
-function setStatus(message) {
-  document.getElementById("status").innerText = message;
+
+/* =========================================
+   STATUS
+========================================= */
+
+function setStatus(message, type = "info") {
+
+  const status =
+    document.getElementById("status");
+
+  status.innerText = message;
+
+  status.className =
+    "status " + type;
+
 }
+
+
+/* =========================================
+   STEP DISPLAY
+========================================= */
+
+function updateSteps() {
+
+  const studentStep =
+    document.getElementById("studentStep");
+
+  const testStep =
+    document.getElementById("testStep");
+
+
+  studentStep.classList.remove(
+    "active-step",
+    "completed-step",
+    "waiting-step"
+  );
+
+  testStep.classList.remove(
+    "active-step",
+    "completed-step",
+    "waiting-step"
+  );
+
+
+  if (currentStep === "student") {
+
+    studentStep.classList.add("active-step");
+
+    testStep.classList.add("waiting-step");
+
+  }
+
+
+  if (currentStep === "test") {
+
+    studentStep.classList.add("completed-step");
+
+    testStep.classList.add("active-step");
+
+  }
+
+
+  if (currentStep === "complete") {
+
+    studentStep.classList.add("completed-step");
+
+    testStep.classList.add("completed-step");
+
+  }
+
+}
+
+
+/* =========================================
+   CHECK STUDENT QR FORMAT
+========================================= */
+
+function looksLikeStudentQR(value) {
+
+  value = String(value).trim();
+
+  /*
+     Your LRN is normally a 12-digit number.
+  */
+
+  return /^\d{12}$/.test(value);
+
+}
+
+
+/* =========================================
+   CHECK TEST QR FORMAT
+========================================= */
+
+function looksLikeTestQR(value) {
+
+  value = String(value).trim().toUpperCase();
+
+  /*
+     Example:
+     G8-TLE-T1-001
+  */
+
+  return /^G\d+-[A-Z0-9]+-T\d+-\d+$/i.test(value);
+
+}
+
+
+/* =========================================
+   QR DETECTED
+========================================= */
+
+function qrDetected(decodedText) {
+
+  const value =
+    String(decodedText).trim();
+
+  const now = Date.now();
+
+
+  /*
+     Prevent the same QR from being
+     repeatedly detected while it
+     remains in front of the camera.
+  */
+
+  if (
+    value === lastCode &&
+    now - lastScanTime < 3000
+  ) {
+
+    return;
+
+  }
+
+
+  lastCode = value;
+  lastScanTime = now;
+
+
+  /* =====================================
+     STEP 1 — STUDENT
+  ===================================== */
+
+  if (currentStep === "student") {
+
+    if (!looksLikeStudentQR(value)) {
+
+      if (looksLikeTestQR(value)) {
+
+        setStatus(
+          "❌ THAT IS A TEST QR.\n\nPlease scan the STUDENT QR.",
+          "error"
+        );
+
+      } else {
+
+        setStatus(
+          "❌ QR NOT RECOGNIZED AS A STUDENT QR.\n\nPlease scan the student's permanent QR.",
+          "error"
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    studentQR = value;
+
+
+    document.getElementById("studentData")
+      .classList.remove("hidden");
+
+    document.getElementById("studentData")
+      .innerHTML =
+      "<span class='check'>✅</span>" +
+      "<strong>Student QR captured</strong><br>" +
+      "LRN: " + value;
+
+
+    /*
+       Move automatically to STEP 2.
+    */
+
+    currentStep = "test";
+
+    updateSteps();
+
+
+    setStatus(
+      "✅ STUDENT QR CAPTURED\n\nNow scan the TEST QR.",
+      "success"
+    );
+
+
+    /*
+       Send the Student QR to the
+       Apps Script window if this
+       camera page was opened by it.
+    */
+
+    sendToParent({
+      type: "BOSSING_STUDENT_QR",
+      value: studentQR
+    });
+
+
+    return;
+
+  }
+
+
+  /* =====================================
+     STEP 2 — TEST
+  ===================================== */
+
+  if (currentStep === "test") {
+
+    if (!looksLikeTestQR(value)) {
+
+      if (looksLikeStudentQR(value)) {
+
+        setStatus(
+          "❌ THAT IS A STUDENT QR.\n\nPlease scan the TEST QR.",
+          "error"
+        );
+
+      } else {
+
+        setStatus(
+          "❌ QR NOT RECOGNIZED AS A TEST QR.\n\nPlease scan the Test QR.",
+          "error"
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    /*
+       Prevent scanning the same
+       test twice during this session.
+    */
+
+    if (value === testQR) {
+
+      setStatus(
+        "⚠️ THIS TEST QR WAS ALREADY SCANNED.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    testQR = value;
+
+
+    document.getElementById("testData")
+      .classList.remove("hidden");
+
+    document.getElementById("testData")
+      .innerHTML =
+      "<span class='check'>✅</span>" +
+      "<strong>Test QR captured</strong><br>" +
+      "Test ID: " + value;
+
+
+    currentStep = "complete";
+
+    updateSteps();
+
+
+    setStatus(
+      "✅ BOTH QR CODES CAPTURED\n\nStudent and Test are ready.",
+      "success"
+    );
+
+
+    /*
+       Send Test QR to Apps Script.
+    */
+
+    sendToParent({
+      type: "BOSSING_TEST_QR",
+      value: testQR
+    });
+
+
+    /*
+       Tell Apps Script that both
+       QR codes are ready.
+    */
+
+    sendToParent({
+      type: "BOSSING_READY",
+      studentQR: studentQR,
+      testQR: testQR
+    });
+
+
+    return;
+
+  }
+
+
+  /* =====================================
+     COMPLETE
+  ===================================== */
+
+  if (currentStep === "complete") {
+
+    setStatus(
+      "✅ THIS SHEET IS READY.\n\nPress START NEW SHEET for the next student.",
+      "success"
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   SEND RESULT TO APPS SCRIPT WINDOW
+========================================= */
+
+function sendToParent(data) {
+
+  try {
+
+    if (window.opener) {
+
+      window.opener.postMessage(
+        data,
+        "*"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "Parent communication unavailable."
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   START CAMERA
+========================================= */
 
 async function startCamera() {
 
   if (cameraRunning) {
+
     return;
+
   }
 
-  setStatus("Starting camera... Please allow camera access.");
 
-  scanner = new Html5Qrcode("reader");
+  setStatus(
+    "Starting camera...\n\nPlease allow camera access.",
+    "info"
+  );
+
+
+  scanner =
+    new Html5Qrcode("reader");
+
 
   const config = {
+
     fps: 10,
+
     qrbox: {
       width: 280,
       height: 280
     }
+
   };
+
 
   try {
 
     await scanner.start(
-      { facingMode: "environment" },
+
+      {
+        facingMode: "environment"
+      },
+
       config,
 
       function(decodedText) {
 
-        const now = Date.now();
-
-        // Prevent the same QR from firing repeatedly
-        if (
-          decodedText === lastCode &&
-          now - lastScanTime < 2000
-        ) {
-          return;
-        }
-
-        lastCode = decodedText;
-        lastScanTime = now;
-
-        setStatus("QR detected: " + decodedText);
-
-        // Send QR result back to the Apps Script window
-        if (window.opener) {
-
-          window.opener.postMessage(
-            {
-              type: "BOSSING_QR",
-              value: decodedText
-            },
-            "*"
-          );
-
-        }
+        qrDetected(decodedText);
 
       },
 
       function(errorMessage) {
-        // Normal scanning errors are ignored.
+
+        /*
+           Normal QR scanning errors
+           are ignored.
+        */
+
       }
+
     );
+
 
     cameraRunning = true;
 
-    document.getElementById("startButton").innerText =
+
+    document.getElementById("startButton")
+      .innerText =
       "📷 CAMERA RUNNING";
 
+
     setStatus(
-      "Camera is running. Point it at a QR code."
+      "📷 CAMERA READY\n\nScan the STUDENT QR.",
+      "info"
     );
+
 
   } catch (error) {
 
     console.error(error);
 
+
     setStatus(
-      "Camera could not start. Make sure camera permission is allowed."
+      "❌ CAMERA COULD NOT START.\n\nPlease allow camera permission and try again.",
+      "error"
     );
 
   }
+
 }
+
+
+/* =========================================
+   RESET FOR NEXT ANSWER SHEET
+========================================= */
+
+async function resetScanner() {
+
+  studentQR = "";
+  testQR = "";
+
+  currentStep = "student";
+
+  lastCode = "";
+  lastScanTime = 0;
+
+
+  document.getElementById("studentData")
+    .classList.add("hidden");
+
+  document.getElementById("testData")
+    .classList.add("hidden");
+
+
+  updateSteps();
+
+
+  setStatus(
+    "Ready for the next student.\n\nScan the STUDENT QR.",
+    "info"
+  );
+
+
+  /*
+     Tell Apps Script to clear
+     its current scanner session.
+  */
+
+  sendToParent({
+    type: "BOSSING_RESET"
+  });
+
+}
+
+
+/* =========================================
+   AUTOMATIC START
+========================================= */
+
+window.addEventListener(
+  "load",
+  function() {
+
+    /*
+       We don't force the camera immediately
+       because some mobile browsers require
+       a user interaction.
+
+       The teacher simply presses START CAMERA.
+    */
+
+    updateSteps();
+
+  }
+);
+
+
+/* =========================================
+   MESSAGE FROM APPS SCRIPT
+========================================= */
+
+window.addEventListener(
+  "message",
+  function(event) {
+
+    if (!event.data) {
+      return;
+    }
+
+
+    if (event.data.type === "BOSSING_CLOSE") {
+
+      try {
+
+        if (scanner && cameraRunning) {
+
+          scanner.stop().then(
+            function() {
+
+              cameraRunning = false;
+
+              try {
+                scanner.clear();
+              } catch(e) {}
+
+              window.close();
+
+            }
+          );
+
+        } else {
+
+          window.close();
+
+        }
+
+      } catch(error) {
+
+        window.close();
+
+      }
+
+    }
+
+  }
+);
 
 </script>
 
