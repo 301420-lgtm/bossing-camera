@@ -1,1140 +1,980 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>BOSSING OMR Scanner</title>
-
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-
-<style>
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-
-  margin: 0;
-  padding: 15px;
-
-  background: #0f172a;
-
-  color: white;
-
-  font-family: Arial, sans-serif;
-
-}
-
-.container {
-
-  max-width: 520px;
-
-  margin: auto;
-
-}
-
-.header {
-
-  text-align: center;
-
-  padding: 12px;
-
-}
-
-.header h1 {
-
-  margin: 0;
-
-  font-size: 23px;
-
-}
-
-.header p {
-
-  margin: 6px 0;
-
-  color: #cbd5e1;
-
-}
-
-.cameraBox {
-
-  position: relative;
-
-  width: 100%;
-
-  aspect-ratio: 0.8221;
-
-  background: black;
-
-  border-radius: 15px;
-
-  overflow: hidden;
-
-}
-
-video {
-
-  width: 100%;
-
-  height: 100%;
-
-  object-fit: cover;
-
-}
-
-.guide {
-
-  position: absolute;
-
-  inset: 8px;
-
-  border: 4px solid #22c55e;
-
-  border-radius: 10px;
-
-  pointer-events: none;
-
-}
-
-.guideText {
-
-  position: absolute;
-
-  top: 15px;
-
-  left: 10px;
-
-  right: 10px;
-
-  text-align: center;
-
-  background: rgba(0,0,0,.65);
-
-  padding: 9px;
-
-  border-radius: 8px;
-
-  font-weight: bold;
-
-}
-
-button {
-
-  width: 100%;
-
-  padding: 17px;
-
-  margin-top: 12px;
-
-  border: none;
-
-  border-radius: 12px;
-
-  font-size: 19px;
-
-  font-weight: bold;
-
-}
-
-.start {
-
-  background: #2563eb;
-
-  color: white;
-
-}
-
-.capture {
-
-  background: #16a34a;
-
-  color: white;
-
-}
-
-.reset {
-
-  background: #475569;
-
-  color: white;
-
-}
-
-button:disabled {
-
-  opacity: .45;
-
-}
-
-.status {
-
-  margin-top: 12px;
-
-  padding: 15px;
-
-  border-radius: 10px;
-
-  text-align: center;
-
-  background: #1e293b;
-
-  color: #e2e8f0;
-
-  white-space: pre-line;
-
-}
-
-.success {
-
-  background: #14532d;
-
-}
-
-.error {
-
-  background: #7f1d1d;
-
-}
-
-.warning {
-
-  background: #78350f;
-
-}
-
-.result {
-
-  margin-top: 12px;
-
-  padding: 15px;
-
-  border-radius: 10px;
-
-  background: #1e293b;
-
-}
-
-.answerGrid {
-
-  font-family: monospace;
-
-  line-height: 1.5;
-
-  font-size: 13px;
-
-  word-break: break-word;
-
-}
-
-.hidden {
-
-  display: none;
-
-}
-
-</style>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School OMR Scanner</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 22px;
+    }
+
+    #instruction {
+      margin: 0 auto 10px;
+      max-width: 700px;
+      font-size: 15px;
+      color: #ddd;
+    }
+
+    #cameraArea {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      margin: auto;
+      background: #000;
+      overflow: hidden;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 72vh;
+      object-fit: contain;
+      background: #000;
+    }
+
+    /* Green guide */
+    #guide {
+      position: absolute;
+      width: 67%;
+      aspect-ratio: 0.8221;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid #00ff66;
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 0 12px rgba(0,255,100,.8);
+    }
+
+    #guideLabel {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      right: 0;
+      color: #00ff66;
+      font-weight: bold;
+      font-size: 14px;
+      text-shadow: 0 1px 3px #000;
+    }
+
+    #checklist {
+      width: calc(100% - 20px);
+      max-width: 700px;
+      margin: 12px auto;
+      background: #222;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .check {
+      padding: 7px 10px;
+      margin: 4px 0;
+      border-radius: 6px;
+      background: #333;
+      font-size: 15px;
+    }
+
+    .waiting {
+      color: #ffcc00;
+    }
+
+    .good {
+      color: #00ff66;
+      font-weight: bold;
+    }
+
+    .bad {
+      color: #ff5555;
+      font-weight: bold;
+    }
+
+    #readyMessage {
+      margin: 8px auto;
+      width: calc(100% - 20px);
+      max-width: 700px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      background: #333;
+    }
+
+    #status {
+      width: calc(100% - 20px);
+      max-width: 700px;
+      margin: 8px auto;
+      min-height: 42px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #222;
+      font-size: 14px;
+    }
+
+    button {
+      width: calc(100% - 30px);
+      max-width: 600px;
+      padding: 15px;
+      margin: 7px auto;
+      display: block;
+      border: none;
+      border-radius: 9px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #startBtn {
+      background: #007bff;
+      color: white;
+    }
+
+    #captureBtn {
+      background: #00c853;
+      color: white;
+    }
+
+    #captureBtn:disabled {
+      background: #555;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    #nextBtn {
+      background: #ff9800;
+      color: white;
+      display: none;
+    }
+
+    #result {
+      width: calc(100% - 20px);
+      max-width: 700px;
+      margin: 10px auto 25px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #222;
+      text-align: left;
+      white-space: pre-wrap;
+      font-size: 14px;
+    }
+
+    canvas {
+      display: none;
+    }
+  </style>
 </head>
-
 
 <body>
 
-<div class="container">
+<h1>📷 SCHOOL OMR SCANNER</h1>
 
+<div id="instruction">
+  Fit ONE student's complete answer-sheet panel inside the green frame.
+  The Student QR, Test QR, and all 50 answers must be visible.
+</div>
 
-<div class="header">
+<div id="cameraArea">
 
-<h1>🏫 SCHOOL OMR SCANNER</h1>
+  <video id="video" autoplay playsinline muted></video>
 
-<p>ONE CAPTURE = ONE STUDENT</p>
+  <div id="guide">
+    <div id="guideLabel">FIT ONE STUDENT PANEL HERE</div>
+  </div>
 
 </div>
 
+<div id="checklist">
 
-<div class="cameraBox">
+  <div id="cameraCheck" class="check waiting">
+    ⏳ Camera: Waiting
+  </div>
 
-<video
-  id="video"
-  autoplay
-  playsinline>
-</video>
+  <div id="studentCheck" class="check waiting">
+    ⏳ Student QR: Looking...
+  </div>
 
-<div class="guide"></div>
+  <div id="testCheck" class="check waiting">
+    ⏳ Test QR: Looking...
+  </div>
 
-<div class="guideText">
-
-FIT ONE STUDENT PANEL INSIDE THE FRAME
+  <div id="panelCheck" class="check waiting">
+    ⏳ OMR Panel: Position inside green frame
+  </div>
 
 </div>
 
+<div id="readyMessage">
+  WAITING FOR QR CODES...
 </div>
 
-
-<button
-  id="startButton"
-  class="start"
-  onclick="startCamera()">
-
-📷 START CAMERA
-
+<button id="startBtn">
+  📷 START CAMERA
 </button>
 
-
-<button
-  id="captureButton"
-  class="capture"
-  onclick="captureSheet()"
-  disabled>
-
-📸 CAPTURE STUDENT
-
+<button id="captureBtn" disabled>
+  📸 CAPTURE STUDENT
 </button>
 
-
-<button
-  class="reset"
-  onclick="resetForNextStudent()">
-
-🔄 READY FOR NEXT STUDENT
-
+<button id="nextBtn">
+  ➡️ READY FOR NEXT STUDENT
 </button>
 
-
-<div
-  id="status"
-  class="status">
-
-Press START CAMERA.
-
+<div id="status">
+  Camera has not started.
 </div>
 
+<div id="result"></div>
 
-<div
-  id="result"
-  class="result hidden">
-
-</div>
-
-
-<canvas
-  id="captureCanvas"
-  class="hidden">
-</canvas>
-
-
-</div>
-
+<canvas id="workCanvas"></canvas>
 
 <script>
 
+const video = document.getElementById("video");
+const startBtn = document.getElementById("startBtn");
+const captureBtn = document.getElementById("captureBtn");
+const nextBtn = document.getElementById("nextBtn");
 
-// ==========================================================
-// CAMERA
-// ==========================================================
+const cameraCheck = document.getElementById("cameraCheck");
+const studentCheck = document.getElementById("studentCheck");
+const testCheck = document.getElementById("testCheck");
+const panelCheck = document.getElementById("panelCheck");
 
-let video =
-  document.getElementById('video');
+const readyMessage = document.getElementById("readyMessage");
+const statusBox = document.getElementById("status");
+const resultBox = document.getElementById("result");
+
+const workCanvas = document.getElementById("workCanvas");
+const workCtx = workCanvas.getContext("2d", {
+  willReadFrequently: true
+});
 
 let stream = null;
+let scanTimer = null;
+
+let detectedLRN = "";
+let detectedTestID = "";
+
+let lastScanTime = 0;
 
 
-// ==========================================================
-// OMR GEOMETRY
-//
-// Based on the current printed student panel.
-// Coordinates are normalized 0.0 - 1.0.
-// ==========================================================
+/* =========================================================
+   START CAMERA
+   ========================================================= */
 
-const BUBBLE_X = [
-
-  // Items 1-25
-  0.158,
-  0.216,
-  0.275,
-  0.333,
-
-  // Items 26-50
-  0.591,
-  0.649,
-  0.708,
-  0.766
-
-];
-
-const ROW_START = 0.115;
-
-const ROW_END = 0.960;
-
-
-// ==========================================================
-// SHADE THRESHOLD
-//
-// Pilot value.
-//
-// Higher = stricter about what counts as fully shaded.
-//
-// We will calibrate this after testing a filled sheet.
-// ==========================================================
-
-const FULL_SHADE_THRESHOLD = 0.55;
-
-
-// ==========================================================
-// START CAMERA
-// ==========================================================
-
-async function startCamera() {
+startBtn.addEventListener("click", async function() {
 
   try {
 
-    stream =
-      await navigator.mediaDevices.getUserMedia({
+    statusBox.textContent = "Requesting camera permission...";
 
-        video: {
-
-          facingMode: {
-            ideal: "environment"
-          },
-
-          width: {
-            ideal: 1920
-          },
-
-          height: {
-            ideal: 1080
-          }
-
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          ideal: "environment"
         },
-
-        audio: false
-
-      });
-
+        width: {
+          ideal: 1920
+        },
+        height: {
+          ideal: 1080
+        }
+      },
+      audio: false
+    });
 
     video.srcObject = stream;
 
     await video.play();
 
+    cameraCheck.className = "check good";
+    cameraCheck.textContent = "✅ Camera: READY";
 
-    document
-      .getElementById('captureButton')
-      .disabled = false;
+    panelCheck.className = "check waiting";
+    panelCheck.textContent =
+      "⏳ OMR Panel: Position ONE student panel inside green frame";
 
+    statusBox.textContent =
+      "Camera is ready. Position ONE complete student panel inside the green frame.";
 
-    document
-      .getElementById('startButton')
-      .innerText =
-      '📷 CAMERA RUNNING';
+    startBtn.style.display = "none";
 
-
-    setStatus(
-      'CAMERA READY\n\n' +
-      'Fit ONE STUDENT PANEL inside the green frame.',
-      ''
-    );
-
+    startQRScanning();
 
   } catch (error) {
 
+    cameraCheck.className = "check bad";
+    cameraCheck.textContent = "❌ Camera: ERROR";
+
+    statusBox.textContent =
+      "Camera could not start. Please allow camera permission and try again.";
+
     console.error(error);
-
-    setStatus(
-      '❌ CAMERA ERROR\n\n' +
-      'Please allow camera permission and try again.',
-      'error'
-    );
-
   }
 
+});
+
+
+/* =========================================================
+   CONTINUOUS QR SCANNING
+   ========================================================= */
+
+function startQRScanning() {
+
+  if (scanTimer) {
+    clearInterval(scanTimer);
+  }
+
+  scanTimer = setInterval(function() {
+
+    if (!video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
+    scanLiveQRCodes();
+
+  }, 400);
 }
 
 
-// ==========================================================
-// CAPTURE
-// ==========================================================
+/* =========================================================
+   FIND THE ACTUAL VIDEO DISPLAY AREA
+   This prevents the green frame from becoming visually
+   offset from the actual camera image.
+   ========================================================= */
 
-async function captureSheet() {
+function getVideoContentRect() {
 
-  if (!stream) {
+  const rect = video.getBoundingClientRect();
 
-    setStatus(
-      'Please start the camera first.',
-      'error'
-    );
+  const videoAR = video.videoWidth / video.videoHeight;
+  const elementAR = rect.width / rect.height;
 
-    return;
+  let width;
+  let height;
+  let left;
+  let top;
 
-  }
+  if (videoAR > elementAR) {
 
+    width = rect.width;
+    height = rect.width / videoAR;
 
-  setStatus(
-    '⏳ CAPTURING...\n\n' +
-    'Reading QR codes and 50 answer bubbles.',
-    ''
-  );
-
-
-  const canvas =
-    document.getElementById(
-      'captureCanvas'
-    );
-
-  const ctx =
-    canvas.getContext('2d', {
-      willReadFrequently: true
-    });
-
-
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-
-  const targetRatio = 0.8221;
-
-  let sx = 0;
-  let sy = 0;
-  let sw = vw;
-  let sh = vh;
-
-
-  /*
-     Match the visible camera frame
-     to our student-panel aspect ratio.
-  */
-
-  const videoRatio =
-    vw / vh;
-
-
-  if (videoRatio > targetRatio) {
-
-    sw =
-      vh * targetRatio;
-
-    sx =
-      (vw - sw) / 2;
+    left = rect.left;
+    top = rect.top + (rect.height - height) / 2;
 
   } else {
 
-    sh =
-      vw / targetRatio;
+    height = rect.height;
+    width = rect.height * videoAR;
 
-    sy =
-      (vh - sh) / 2;
-
+    top = rect.top;
+    left = rect.left + (rect.width - width) / 2;
   }
 
+  return {
+    left: left,
+    top: top,
+    width: width,
+    height: height
+  };
+}
 
-  canvas.width =
-    Math.round(sw);
 
-  canvas.height =
-    Math.round(sh);
+/* =========================================================
+   CROP EXACTLY WHAT IS INSIDE GREEN FRAME
+   ========================================================= */
 
+function getPanelCropCanvas() {
+
+  const frame = document.getElementById("guide");
+
+  const frameRect = frame.getBoundingClientRect();
+  const videoRect = getVideoContentRect();
+
+  let x =
+    (frameRect.left - videoRect.left) /
+    videoRect.width;
+
+  let y =
+    (frameRect.top - videoRect.top) /
+    videoRect.height;
+
+  let w =
+    frameRect.width /
+    videoRect.width;
+
+  let h =
+    frameRect.height /
+    videoRect.height;
+
+  /* Clamp */
+  x = Math.max(0, Math.min(1, x));
+  y = Math.max(0, Math.min(1, y));
+  w = Math.max(0, Math.min(1 - x, w));
+  h = Math.max(0, Math.min(1 - y, h));
+
+  const sx = Math.round(x * video.videoWidth);
+  const sy = Math.round(y * video.videoHeight);
+
+  const sw = Math.round(w * video.videoWidth);
+  const sh = Math.round(h * video.videoHeight);
+
+  if (sw <= 0 || sh <= 0) {
+    return null;
+  }
+
+  const maxSize = 1600;
+
+  let scale = Math.min(
+    maxSize / sw,
+    maxSize / sh,
+    1
+  );
+
+  const canvas = document.createElement("canvas");
+
+  canvas.width = Math.round(sw * scale);
+  canvas.height = Math.round(sh * scale);
+
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+  });
 
   ctx.drawImage(
-
     video,
-
     sx,
     sy,
     sw,
     sh,
-
     0,
     0,
     canvas.width,
     canvas.height
-
   );
 
-
-  const imageData =
-    ctx.getImageData(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+  return canvas;
+}
 
 
-  // ========================================================
-  // READ QR CODES
-  // ========================================================
+/* =========================================================
+   QR SCANNING
+   We deliberately scan several areas instead of depending
+   on one exact QR coordinate.
+   ========================================================= */
 
-  const studentQR =
-    scanRegion(
-      imageData,
-      0.67,
-      0.01,
-      0.18,
-      0.20
-    );
+function scanLiveQRCodes() {
 
+  const canvas = getPanelCropCanvas();
 
-  const testQR =
-    scanRegion(
-      imageData,
-      0.83,
-      0.01,
-      0.17,
-      0.20
-    );
-
-
-  if (!studentQR) {
-
-    setStatus(
-      '❌ STUDENT QR NOT READ\n\n' +
-      'Move the phone slightly closer and make sure the entire student panel is inside the green frame.',
-      'error'
-    );
-
+  if (!canvas) {
     return;
-
   }
 
+  const found = scanQRCodeCandidates(canvas);
 
-  if (!testQR) {
+  let student = "";
+  let test = "";
 
-    setStatus(
-      '❌ TEST QR NOT READ\n\n' +
-      'Make sure both QR codes are inside the green frame.',
-      'error'
-    );
+  found.forEach(function(value) {
 
-    return;
+    value = String(value).trim();
 
-  }
-
-
-  // ========================================================
-  // READ 50 BUBBLES
-  // ========================================================
-
-  const answers =
-    readOMR(
-      imageData
-    );
-
-
-  // ========================================================
-  // DISPLAY
-  // ========================================================
-
-  let html = '';
-
-  html +=
-    '<strong>Student QR:</strong> ' +
-    escapeHtml(studentQR) +
-    '<br><br>';
-
-  html +=
-    '<strong>Test QR:</strong> ' +
-    escapeHtml(testQR) +
-    '<br><br>';
-
-  html +=
-    '<strong>Detected answers:</strong><br>';
-
-  html +=
-    '<div class="answerGrid">';
-
-  for (let i = 0; i < 50; i++) {
-
-    html +=
-      (i + 1) +
-      ':' +
-      (answers[i] || 'BLANK') +
-      '  ';
-
-    if ((i + 1) % 5 === 0) {
-      html += '<br>';
+    if (/^\d{8,15}$/.test(value)) {
+      student = value;
     }
 
+    if (
+      /-/i.test(value) ||
+      /^G\d+/i.test(value) ||
+      /^TEST/i.test(value)
+    ) {
+      test = value;
+    }
+
+  });
+
+  if (student) {
+    detectedLRN = student;
+
+    studentCheck.className = "check good";
+    studentCheck.textContent =
+      "✅ Student QR: " + student;
+  } else {
+
+    studentCheck.className = "check waiting";
+    studentCheck.textContent =
+      "⏳ Student QR: Looking...";
   }
 
-  html += '</div>';
+
+  if (test) {
+    detectedTestID = test;
+
+    testCheck.className = "check good";
+    testCheck.textContent =
+      "✅ Test QR: " + test;
+  } else {
+
+    testCheck.className = "check waiting";
+    testCheck.textContent =
+      "⏳ Test QR: Looking...";
+  }
 
 
-  document
-    .getElementById('result')
-    .classList.remove('hidden');
+  if (detectedLRN && detectedTestID) {
 
-  document
-    .getElementById('result')
-    .innerHTML = html;
+    captureBtn.disabled = false;
 
+    readyMessage.textContent =
+      "🟢 READY TO CAPTURE";
 
-  setStatus(
-    '✅ CAPTURE COMPLETE\n\n' +
-    'Sending result to School OMR Scanner...',
-    'success'
-  );
+    readyMessage.style.background =
+      "#075d2d";
 
+    panelCheck.className = "check good";
 
-  // ========================================================
-  // SEND TO APPS SCRIPT
-  // ========================================================
+    panelCheck.textContent =
+      "✅ OMR Panel: Ready";
 
-  if (window.opener) {
-
-    window.opener.postMessage(
-
-      {
-
-        type:
-          'BOSSING_OMR_RESULT',
-
-        payload: {
-
-          lrn:
-            studentQR,
-
-          testId:
-            testQR,
-
-          answers:
-            answers
-
-        }
-
-      },
-
-      'https://script.google.com'
-
-    );
-
-    /*
-       Apps Script may use a Google-hosted
-       origin after redirection. If the
-       message doesn't arrive, we will
-       adjust the target after the first
-       connected test.
-    */
+    statusBox.textContent =
+      "Both QR codes detected. Keep the student panel still and click CAPTURE STUDENT.";
 
   } else {
 
-    setStatus(
-      '⚠️ OMR READ COMPLETE\n\n' +
-      'This camera was opened directly.\n\n' +
-      'Open it from the School OMR Scanner so the result can be saved to Google Sheets.',
-      'warning'
-    );
+    captureBtn.disabled = true;
+
+    readyMessage.textContent =
+      "WAITING FOR QR CODES...";
+
+    readyMessage.style.background =
+      "#333";
+
+    panelCheck.className = "check waiting";
+
+    panelCheck.textContent =
+      "⏳ OMR Panel: Keep complete panel inside green frame";
 
   }
 
 }
 
 
-// ==========================================================
-// SCAN QR REGION
-// ==========================================================
+/* =========================================================
+   SCAN MULTIPLE POSSIBLE QR AREAS
+   ========================================================= */
 
-function scanRegion(
-  fullImage,
-  nx,
-  ny,
-  nw,
-  nh
-) {
+function scanQRCodeCandidates(canvas) {
 
-  const x =
-    Math.floor(
-      fullImage.width * nx
-    );
+  const results = [];
 
-  const y =
-    Math.floor(
-      fullImage.height * ny
-    );
+  const regions = [
 
-  const w =
-    Math.floor(
-      fullImage.width * nw
-    );
+    /* Entire panel */
+    {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1
+    },
 
-  const h =
-    Math.floor(
-      fullImage.height * nh
-    );
+    /* Upper-right section */
+    {
+      x: 0.50,
+      y: 0.00,
+      w: 0.50,
+      h: 0.35
+    },
 
+    /* Student QR area */
+    {
+      x: 0.60,
+      y: 0.00,
+      w: 0.28,
+      h: 0.28
+    },
 
-  const temp =
-    document.createElement('canvas');
+    /* Test QR area */
+    {
+      x: 0.72,
+      y: 0.00,
+      w: 0.28,
+      h: 0.28
+    },
 
-  temp.width = w;
-  temp.height = h;
-
-
-  const ctx =
-    temp.getContext('2d');
-
-  ctx.putImageData(
-    cropImageData(
-      fullImage,
-      x,
-      y,
-      w,
-      h
-    ),
-    0,
-    0
-  );
-
-
-  const data =
-    ctx.getImageData(
-      0,
-      0,
-      w,
-      h
-    );
-
-
-  const code =
-    jsQR(
-      data.data,
-      data.width,
-      data.height,
-      {
-        inversionAttempts:
-          'attemptBoth'
-      }
-    );
-
-
-  return code
-    ? code.data.trim()
-    : '';
-
-}
-
-
-// ==========================================================
-// CROP IMAGE DATA
-// ==========================================================
-
-function cropImageData(
-  source,
-  x,
-  y,
-  w,
-  h
-) {
-
-  const result =
-    new ImageData(w, h);
-
-  for (let yy = 0; yy < h; yy++) {
-
-    for (let xx = 0; xx < w; xx++) {
-
-      const sx = x + xx;
-      const sy = y + yy;
-
-      if (
-        sx < 0 ||
-        sy < 0 ||
-        sx >= source.width ||
-        sy >= source.height
-      ) {
-        continue;
-      }
-
-
-      const src =
-        (sy * source.width + sx) * 4;
-
-      const dst =
-        (yy * w + xx) * 4;
-
-
-      result.data[dst] =
-        source.data[src];
-
-      result.data[dst + 1] =
-        source.data[src + 1];
-
-      result.data[dst + 2] =
-        source.data[src + 2];
-
-      result.data[dst + 3] =
-        255;
-
+    /* Very wide top section */
+    {
+      x: 0.40,
+      y: 0.00,
+      w: 0.60,
+      h: 0.25
     }
 
-  }
+  ];
 
-  return result;
+  regions.forEach(function(region) {
 
+    const rw = Math.round(canvas.width * region.w);
+    const rh = Math.round(canvas.height * region.h);
+
+    const rx = Math.round(canvas.width * region.x);
+    const ry = Math.round(canvas.height * region.y);
+
+    if (rw < 100 || rh < 100) {
+      return;
+    }
+
+    const qrCanvas = document.createElement("canvas");
+
+    /*
+      Enlarge small QR regions.
+    */
+    const scale = Math.max(
+      1,
+      Math.min(3, 900 / Math.max(rw, rh))
+    );
+
+    qrCanvas.width = Math.round(rw * scale);
+    qrCanvas.height = Math.round(rh * scale);
+
+    const qrCtx = qrCanvas.getContext("2d", {
+      willReadFrequently: true
+    });
+
+    qrCtx.drawImage(
+      canvas,
+      rx,
+      ry,
+      rw,
+      rh,
+      0,
+      0,
+      qrCanvas.width,
+      qrCanvas.height
+    );
+
+    const imageData =
+      qrCtx.getImageData(
+        0,
+        0,
+        qrCanvas.width,
+        qrCanvas.height
+      );
+
+    const code = jsQR(
+      imageData.data,
+      imageData.width,
+      imageData.height,
+      {
+        inversionAttempts: "attemptBoth"
+      }
+    );
+
+    if (code && code.data) {
+
+      const value = String(code.data).trim();
+
+      if (!results.includes(value)) {
+        results.push(value);
+      }
+    }
+
+  });
+
+  return results;
 }
 
 
-// ==========================================================
-// READ OMR
-// ==========================================================
+/* =========================================================
+   CAPTURE STUDENT
+   ========================================================= */
 
-function readOMR(imageData) {
+captureBtn.addEventListener("click", function() {
+
+  if (!detectedLRN || !detectedTestID) {
+
+    statusBox.textContent =
+      "Please wait until BOTH QR codes show green.";
+
+    return;
+  }
+
+  captureBtn.disabled = true;
+
+  readyMessage.textContent =
+    "📸 CAPTURING...";
+
+  readyMessage.style.background =
+    "#555";
+
+  statusBox.textContent =
+    "Capturing one student panel and reading all 50 answers...";
+
+  const canvas = getPanelCropCanvas();
+
+  if (!canvas) {
+
+    statusBox.textContent =
+      "Could not capture the panel. Try again.";
+
+    captureBtn.disabled = false;
+
+    return;
+  }
+
+  const answers = readOMR(canvas);
+
+  const payload = {
+    lrn: detectedLRN,
+    testId: detectedTestID,
+    answers: answers
+  };
+
+  sendResultToAppsScript(payload);
+
+});
+
+
+/* =========================================================
+   OMR READER
+   ONLY FULLY SHADED COUNTS
+   ========================================================= */
+
+function readOMR(canvas) {
+
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  const width = canvas.width;
+  const height = canvas.height;
+
+  /*
+    Bubble X positions from the current printed OMR layout.
+  */
+
+  const xPositions = [
+    0.158,
+    0.216,
+    0.275,
+    0.333
+  ];
+
+  const xPositionsSecond = [
+    0.591,
+    0.649,
+    0.708,
+    0.766
+  ];
+
+  /*
+    Items 1-25 and 26-50 share the same Y positions.
+  */
 
   const answers = [];
 
-
   for (let item = 1; item <= 50; item++) {
 
-    const rowIndex =
+    const row = (item - 1) % 25;
+
+    const y =
+      0.115 +
+      (0.960 - 0.115) *
+      (row / 24);
+
+    const xs =
       item <= 25
-        ? item - 1
-        : item - 26;
-
-
-    const columnOffset =
-      item <= 25
-        ? 0
-        : 4;
-
-
-    const yNorm =
-      ROW_START +
-      (
-        (ROW_END - ROW_START) *
-        rowIndex /
-        24
-      );
-
+        ? xPositions
+        : xPositionsSecond;
 
     const scores = [];
 
+    for (let option = 0; option < 4; option++) {
 
-    for (let choice = 0; choice < 4; choice++) {
-
-      const xNorm =
-        BUBBLE_X[
-          columnOffset + choice
-        ];
-
+      const x = xs[option];
 
       const score =
-        bubbleShadeScore(
-          imageData,
-          xNorm,
-          yNorm
-        );
-
+        measureBubble(canvas, ctx, x, y);
 
       scores.push(score);
-
     }
 
+    /*
+      ONLY FULLY SHADED counts.
 
-    // ------------------------------------------
-    // Determine fully shaded bubbles
-    // ------------------------------------------
+      A bubble needs:
+      - enough darkness in its center
+      - enough difference from its printed outline
+    */
 
-    const full =
-      scores
-        .map(
-          function(score, index) {
+    const full = [];
 
-            return {
-              index: index,
-              score: score
-            };
+    for (let i = 0; i < scores.length; i++) {
 
-          }
-        )
-        .filter(
-          function(item) {
-
-            return (
-              item.score >=
-              FULL_SHADE_THRESHOLD
-            );
-
-          }
-        );
-
+      if (scores[i] >= 25) {
+        full.push(i);
+      }
+    }
 
     if (full.length === 1) {
 
       answers.push(
-        ['A', 'B', 'C', 'D'][
-          full[0].index
-        ]
+        ["A", "B", "C", "D"][full[0]]
       );
 
-    }
+    } else if (full.length >= 2) {
 
-    else if (full.length >= 2) {
+      answers.push("MULTIPLE");
 
-      answers.push(
-        'MULTIPLE'
-      );
+    } else {
 
-    }
-
-    else {
-
-      answers.push('');
+      answers.push("");
 
     }
 
   }
 
-
   return answers;
-
 }
 
 
-// ==========================================================
-// MEASURE BUBBLE DARKNESS
-// ==========================================================
+/* =========================================================
+   MEASURE BUBBLE DARKNESS
+   ========================================================= */
 
-function bubbleShadeScore(
-  imageData,
-  xNorm,
-  yNorm
-) {
+function measureBubble(canvas, ctx, nx, ny) {
 
-  const w =
-    imageData.width;
+  const x =
+    Math.round(nx * canvas.width);
 
-  const h =
-    imageData.height;
+  const y =
+    Math.round(ny * canvas.height);
 
-
-  const cx =
-    xNorm * w;
-
-  const cy =
-    yNorm * h;
-
-
-  /*
-     Bubble radius is based on
-     the current printed layout.
-  */
+  const radius =
+    Math.max(
+      8,
+      Math.round(
+        Math.min(canvas.width, canvas.height) * 0.014
+      )
+    );
 
   const innerRadius =
-    Math.max(
-      4,
-      w * 0.012
-    );
-
+    radius * 0.55;
 
   const ringInner =
-    w * 0.021;
-
+    radius * 0.78;
 
   const ringOuter =
-    w * 0.032;
+    radius * 0.98;
 
-
-  let innerSum = 0;
+  let innerDark = 0;
   let innerCount = 0;
 
-  let ringSum = 0;
+  let ringDark = 0;
   let ringCount = 0;
 
+  const box = radius + 2;
 
-  const minX =
-    Math.max(
-      0,
-      Math.floor(
-        cx - ringOuter
-      )
-    );
-
-  const maxX =
+  const image = ctx.getImageData(
+    Math.max(0, x - box),
+    Math.max(0, y - box),
     Math.min(
-      w - 1,
-      Math.ceil(
-        cx + ringOuter
-      )
-    );
-
-  const minY =
-    Math.max(
-      0,
-      Math.floor(
-        cy - ringOuter
-      )
-    );
-
-  const maxY =
+      canvas.width - Math.max(0, x - box),
+      box * 2 + 1
+    ),
     Math.min(
-      h - 1,
-      Math.ceil(
-        cy + ringOuter
-      )
-    );
-
+      canvas.height - Math.max(0, y - box),
+      box * 2 + 1
+    )
+  );
 
   for (
-    let y = minY;
-    y <= maxY;
-    y++
+    let py = -radius;
+    py <= radius;
+    py++
   ) {
 
     for (
-      let x = minX;
-      x <= maxX;
-      x++
+      let px = -radius;
+      px <= radius;
+      px++
     ) {
 
-      const dx =
-        x - cx;
-
-      const dy =
-        y - cy;
-
       const distance =
-        Math.sqrt(
-          dx * dx +
-          dy * dy
-        );
+        Math.sqrt(px * px + py * py);
 
-
-      const index =
-        (y * w + x) * 4;
-
-
-      const gray =
-        (
-          0.299 *
-          imageData.data[index]
-        ) +
-        (
-          0.587 *
-          imageData.data[index + 1]
-        ) +
-        (
-          0.114 *
-          imageData.data[index + 2]
-        );
-
-
-      if (
-        distance <=
-        innerRadius
-      ) {
-
-        innerSum += gray;
-        innerCount++;
-
+      if (distance > radius) {
+        continue;
       }
 
-      else if (
+      const gx =
+        x + px;
+
+      const gy =
+        y + py;
+
+      if (
+        gx < 0 ||
+        gy < 0 ||
+        gx >= canvas.width ||
+        gy >= canvas.height
+      ) {
+        continue;
+      }
+
+      const localX =
+        gx - Math.max(0, x - box);
+
+      const localY =
+        gy - Math.max(0, y - box);
+
+      const localWidth =
+        Math.min(
+          canvas.width - Math.max(0, x - box),
+          box * 2 + 1
+        );
+
+      const index =
+        (localY * localWidth + localX) * 4;
+
+      const r = image.data[index];
+      const g = image.data[index + 1];
+      const b = image.data[index + 2];
+
+      const gray =
+        0.299 * r +
+        0.587 * g +
+        0.114 * b;
+
+      const darkness =
+        255 - gray;
+
+      if (distance <= innerRadius) {
+
+        innerDark += darkness;
+        innerCount++;
+
+      } else if (
         distance >= ringInner &&
         distance <= ringOuter
       ) {
 
-        ringSum += gray;
+        ringDark += darkness;
         ringCount++;
 
       }
@@ -1143,104 +983,160 @@ function bubbleShadeScore(
 
   }
 
-
   if (
     innerCount === 0 ||
     ringCount === 0
   ) {
-
     return 0;
+  }
+
+  const innerAverage =
+    innerDark / innerCount;
+
+  const ringAverage =
+    ringDark / ringCount;
+
+  /*
+    A properly shaded bubble should have a
+    significantly darker center than its outline.
+  */
+
+  const difference =
+    innerAverage - ringAverage;
+
+  /*
+    Require reasonable center darkness too.
+  */
+
+  if (innerAverage < 95) {
+    return 0;
+  }
+
+  return difference;
+}
+
+
+/* =========================================================
+   SEND RESULT BACK TO APPS SCRIPT
+   ========================================================= */
+
+function sendResultToAppsScript(payload) {
+
+  resultBox.textContent =
+    "Student LRN: " + payload.lrn +
+    "\nTest ID: " + payload.testId +
+    "\n\n50 answers detected.\n\nSending result to School OMR Scanner...";
+
+  if (window.opener) {
+
+    window.opener.postMessage(
+      {
+        type: "BOSSING_OMR_RESULT",
+        payload: payload
+      },
+      "*"
+    );
+
+    statusBox.textContent =
+      "Result sent to School OMR Scanner. Waiting for confirmation...";
+
+  } else {
+
+    statusBox.textContent =
+      "No parent Apps Script window was found. Open the camera from the School OMR Scanner Web App.";
 
   }
 
-
-  const inner =
-    innerSum / innerCount;
-
-  const background =
-    ringSum / ringCount;
-
-
-  /*
-     Higher score =
-     darker bubble interior.
-  */
-
-  return Math.max(
-    0,
-    (
-      background - inner
-    ) /
-    Math.max(
-      background,
-      1
-    )
-  );
-
 }
 
 
-// ==========================================================
-// RESET
-// ==========================================================
+/* =========================================================
+   RECEIVE SAVE CONFIRMATION FROM APPS SCRIPT
+   ========================================================= */
 
-function resetForNextStudent() {
+window.addEventListener("message", function(event) {
 
-  document
-    .getElementById('result')
-    .classList.add('hidden');
+  if (!event.data) {
+    return;
+  }
 
+  if (event.data.type === "BOSSING_SAVED") {
 
-  setStatus(
-    'READY FOR NEXT STUDENT\n\n' +
-    'Fit ONE student panel inside the green frame.',
-    ''
-  );
+    readyMessage.textContent =
+      "✅ RESULT SAVED";
 
-}
+    readyMessage.style.background =
+      "#075d2d";
 
+    statusBox.textContent =
+      "Student result successfully saved to SCAN_RESULTS.";
 
-// ==========================================================
-// STATUS
-// ==========================================================
+    nextBtn.style.display = "block";
 
-function setStatus(
-  text,
-  type
-) {
-
-  const el =
-    document.getElementById(
-      'status'
-    );
-
-  el.innerText =
-    text;
-
-  el.className =
-    'status ' +
-    (type || '');
-
-}
+    captureBtn.style.display = "none";
+  }
 
 
-// ==========================================================
-// HTML SAFETY
-// ==========================================================
+  if (event.data.type === "BOSSING_DUPLICATE") {
 
-function escapeHtml(value) {
+    readyMessage.textContent =
+      "⚠️ ALREADY SCANNED";
 
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    readyMessage.style.background =
+      "#7a5200";
 
-}
+    statusBox.textContent =
+      "This student and test combination has already been scanned.";
+
+    nextBtn.style.display = "block";
+
+    captureBtn.style.display = "none";
+  }
+
+});
+
+
+/* =========================================================
+   NEXT STUDENT
+   ========================================================= */
+
+nextBtn.addEventListener("click", function() {
+
+  detectedLRN = "";
+  detectedTestID = "";
+
+  studentCheck.className = "check waiting";
+  studentCheck.textContent =
+    "⏳ Student QR: Looking...";
+
+  testCheck.className = "check waiting";
+  testCheck.textContent =
+    "⏳ Test QR: Looking...";
+
+  panelCheck.className = "check waiting";
+  panelCheck.textContent =
+    "⏳ OMR Panel: Position ONE student panel inside green frame";
+
+  readyMessage.textContent =
+    "WAITING FOR QR CODES...";
+
+  readyMessage.style.background =
+    "#333";
+
+  statusBox.textContent =
+    "Position the next student panel inside the green frame.";
+
+  resultBox.textContent = "";
+
+  captureBtn.style.display = "block";
+  captureBtn.disabled = true;
+
+  nextBtn.style.display = "none";
+
+});
+
 
 </script>
 
 </body>
-
 </html>
