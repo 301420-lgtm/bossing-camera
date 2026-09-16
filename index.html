@@ -272,6 +272,10 @@ let detectedTestID = "";
 
 let lastScanTime = 0;
 
+/* IMPORTANT: prevents QR status from going back to "Looking..." */
+let qrLocked = false;
+let captureInProgress = false;
+
 
 /* =========================================================
    START CAMERA
@@ -477,8 +481,14 @@ function getPanelCropCanvas() {
    We deliberately scan several areas instead of depending
    on one exact QR coordinate.
    ========================================================= */
-
 function scanLiveQRCodes() {
+
+  /* Once both QR codes are detected, LOCK them.
+     Do not allow a temporary camera blur to erase them. */
+
+  if (qrLocked || captureInProgress) {
+    return;
+  }
 
   const canvas = getPanelCropCanvas();
 
@@ -495,10 +505,12 @@ function scanLiveQRCodes() {
 
     value = String(value).trim();
 
+    /* LRN */
     if (/^\d{8,15}$/.test(value)) {
       student = value;
     }
 
+    /* Test ID */
     if (
       /-/i.test(value) ||
       /^G\d+/i.test(value) ||
@@ -509,35 +521,47 @@ function scanLiveQRCodes() {
 
   });
 
+
+  /* -----------------------------------------
+     STUDENT QR
+     ----------------------------------------- */
+
   if (student) {
+
     detectedLRN = student;
 
     studentCheck.className = "check good";
-    studentCheck.textContent =
-      "✅ Student QR: " + student;
-  } else {
 
-    studentCheck.className = "check waiting";
     studentCheck.textContent =
-      "⏳ Student QR: Looking...";
+      "✅ Student QR: " + detectedLRN;
+
   }
 
 
+  /* -----------------------------------------
+     TEST QR
+     ----------------------------------------- */
+
   if (test) {
+
     detectedTestID = test;
 
     testCheck.className = "check good";
-    testCheck.textContent =
-      "✅ Test QR: " + test;
-  } else {
 
-    testCheck.className = "check waiting";
     testCheck.textContent =
-      "⏳ Test QR: Looking...";
+      "✅ Test QR: " + detectedTestID;
+
   }
 
 
+  /* -----------------------------------------
+     BOTH QR CODES FOUND
+     ----------------------------------------- */
+
   if (detectedLRN && detectedTestID) {
+
+    /* LOCK the successful detection */
+    qrLocked = true;
 
     captureBtn.disabled = false;
 
@@ -547,31 +571,16 @@ function scanLiveQRCodes() {
     readyMessage.style.background =
       "#075d2d";
 
-    panelCheck.className = "check good";
+    panelCheck.className =
+      "check good";
 
     panelCheck.textContent =
-      "✅ OMR Panel: Ready";
+      "✅ OMR Panel: READY";
 
     statusBox.textContent =
-      "Both QR codes detected. Keep the student panel still and click CAPTURE STUDENT.";
-
-  } else {
-
-    captureBtn.disabled = true;
-
-    readyMessage.textContent =
-      "WAITING FOR QR CODES...";
-
-    readyMessage.style.background =
-      "#333";
-
-    panelCheck.className = "check waiting";
-
-    panelCheck.textContent =
-      "⏳ OMR Panel: Keep complete panel inside green frame";
+      "✅ BOTH QR CODES DETECTED — KEEP THE PAPER STILL AND PRESS CAPTURE STUDENT.";
 
   }
-
 }
 
 
@@ -703,36 +712,56 @@ function scanQRCodeCandidates(canvas) {
 /* =========================================================
    CAPTURE STUDENT
    ========================================================= */
-
 captureBtn.addEventListener("click", function() {
 
   if (!detectedLRN || !detectedTestID) {
 
     statusBox.textContent =
-      "Please wait until BOTH QR codes show green.";
+      "Please wait until BOTH QR codes are detected.";
 
     return;
   }
 
+  /* LOCK everything during capture */
+  captureInProgress = true;
+  qrLocked = true;
+
   captureBtn.disabled = true;
 
   readyMessage.textContent =
-    "📸 CAPTURING...";
+    "🔵 SCANNING — PLEASE WAIT";
 
   readyMessage.style.background =
-    "#555";
+    "#075a8a";
 
   statusBox.textContent =
-    "Capturing one student panel and reading all 50 answers...";
+    "📸 Capturing ONE student panel. Reading QR codes and 50 answers...";
+
+  /* Stop continuous QR checking while capturing */
+  if (scanTimer) {
+    clearInterval(scanTimer);
+    scanTimer = null;
+  }
 
   const canvas = getPanelCropCanvas();
 
   if (!canvas) {
 
+    captureInProgress = false;
+    qrLocked = false;
+
+    readyMessage.textContent =
+      "⚠️ CAPTURE FAILED";
+
+    readyMessage.style.background =
+      "#7a0000";
+
     statusBox.textContent =
-      "Could not capture the panel. Try again.";
+      "Could not capture the student panel. Please try again.";
 
     captureBtn.disabled = false;
+
+    startQRScanning();
 
     return;
   }
@@ -1060,37 +1089,54 @@ window.addEventListener("message", function(event) {
     return;
   }
 
-  if (event.data.type === "BOSSING_SAVED") {
+ if (event.data.type === "BOSSING_SAVED") {
 
-    readyMessage.textContent =
-      "✅ RESULT SAVED";
+  captureInProgress = false;
+  qrLocked = true;
 
-    readyMessage.style.background =
-      "#075d2d";
+  readyMessage.textContent =
+    "🟢 SCAN SUCCESSFUL — RESULT SAVED";
 
-    statusBox.textContent =
-      "Student result successfully saved to SCAN_RESULTS.";
+  readyMessage.style.background =
+    "#087f23";
 
-    nextBtn.style.display = "block";
+  statusBox.textContent =
+    "✅ SUCCESS! The student's result has been sent to SCAN_RESULTS.";
 
-    captureBtn.style.display = "none";
+  resultBox.textContent =
+    "SCAN SUCCESSFUL\n\n" +
+    "Student LRN: " + detectedLRN + "\n" +
+    "Test ID: " + detectedTestID + "\n\n" +
+    "The result was successfully sent to School OMR Scanner.";
+
+  nextBtn.style.display = "block";
+
+  captureBtn.style.display = "none";
   }
 
+if (event.data.type === "BOSSING_DUPLICATE") {
 
-  if (event.data.type === "BOSSING_DUPLICATE") {
+  captureInProgress = false;
+  qrLocked = true;
 
-    readyMessage.textContent =
-      "⚠️ ALREADY SCANNED";
+  readyMessage.textContent =
+    "🟠 ALREADY SCANNED";
 
-    readyMessage.style.background =
-      "#7a5200";
+  readyMessage.style.background =
+    "#8a5a00";
 
-    statusBox.textContent =
-      "This student and test combination has already been scanned.";
+  statusBox.textContent =
+    "⚠️ This student and test combination has already been scanned.";
 
-    nextBtn.style.display = "block";
+  resultBox.textContent =
+    "DUPLICATE SCAN\n\n" +
+    "Student LRN: " + detectedLRN + "\n" +
+    "Test ID: " + detectedTestID + "\n\n" +
+    "No duplicate row was added.";
 
-    captureBtn.style.display = "none";
+  nextBtn.style.display = "block";
+
+  captureBtn.style.display = "none";
   }
 
 });
@@ -1104,6 +1150,8 @@ nextBtn.addEventListener("click", function() {
 
   detectedLRN = "";
   detectedTestID = "";
+  qrLocked = false;
+captureInProgress = false;
 
   studentCheck.className = "check waiting";
   studentCheck.textContent =
