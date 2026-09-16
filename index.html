@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
 <title>School OMR Scanner</title>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
@@ -191,7 +194,7 @@ canvas {
   display: none;
 }
 
-/* SUCCESS SCREEN */
+/* SUCCESS / PROCESSING / WARNING / ERROR */
 
 .success {
   background: #087f23 !important;
@@ -224,31 +227,40 @@ canvas {
 
 <div id="cameraArea">
 
-  <video id="video" autoplay playsinline muted></video>
+  <video id="video"
+         autoplay
+         playsinline
+         muted></video>
 
   <div id="guide">
+
     <div id="guideLabel">
       FIT ONE STUDENT PANEL HERE
     </div>
+
   </div>
 
 </div>
 
 <div id="checklist">
 
-  <div id="cameraCheck" class="check waiting">
+  <div id="cameraCheck"
+       class="check waiting">
     ⏳ Camera: Waiting
   </div>
 
-  <div id="studentCheck" class="check waiting">
+  <div id="studentCheck"
+       class="check waiting">
     ⏳ Student QR: Looking...
   </div>
 
-  <div id="testCheck" class="check waiting">
+  <div id="testCheck"
+       class="check waiting">
     ⏳ Test QR: Looking...
   </div>
 
-  <div id="panelCheck" class="check waiting">
+  <div id="panelCheck"
+       class="check waiting">
     ⏳ OMR Panel: Position inside green frame
   </div>
 
@@ -262,7 +274,8 @@ canvas {
   📷 START CAMERA
 </button>
 
-<button id="captureBtn" disabled>
+<button id="captureBtn"
+        disabled>
   📸 CAPTURE STUDENT
 </button>
 
@@ -278,34 +291,69 @@ canvas {
 
 <canvas id="workCanvas"></canvas>
 
+
 <script>
+
+/* =========================================================
+   APPS SCRIPT WEB APP
+   ========================================================= */
+
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwOSW8l1H5_WqOnfRv4sklhhGNQGXm_-9-FvciaSTYrmR6vS2X-A3_yCiXYhN7Di0ay4A/exec";
+
 
 /* =========================================================
    ELEMENTS
    ========================================================= */
 
-const video = document.getElementById("video");
+const video =
+  document.getElementById("video");
 
-const startBtn = document.getElementById("startBtn");
-const captureBtn = document.getElementById("captureBtn");
-const nextBtn = document.getElementById("nextBtn");
+const startBtn =
+  document.getElementById("startBtn");
 
-const cameraCheck = document.getElementById("cameraCheck");
-const studentCheck = document.getElementById("studentCheck");
-const testCheck = document.getElementById("testCheck");
-const panelCheck = document.getElementById("panelCheck");
+const captureBtn =
+  document.getElementById("captureBtn");
 
-const readyMessage = document.getElementById("readyMessage");
-const statusBox = document.getElementById("status");
-const resultBox = document.getElementById("result");
+const nextBtn =
+  document.getElementById("nextBtn");
+
+const cameraCheck =
+  document.getElementById("cameraCheck");
+
+const studentCheck =
+  document.getElementById("studentCheck");
+
+const testCheck =
+  document.getElementById("testCheck");
+
+const panelCheck =
+  document.getElementById("panelCheck");
+
+const readyMessage =
+  document.getElementById("readyMessage");
+
+const statusBox =
+  document.getElementById("status");
+
+const resultBox =
+  document.getElementById("result");
+
+
+/* =========================================================
+   VARIABLES
+   ========================================================= */
 
 let stream = null;
+
 let scanTimer = null;
 
 let detectedLRN = "";
+
 let detectedTestID = "";
 
 let qrLocked = false;
+
 let captureInProgress = false;
 
 
@@ -313,66 +361,83 @@ let captureInProgress = false;
    START CAMERA
    ========================================================= */
 
-startBtn.addEventListener("click", async function() {
+startBtn.addEventListener(
+  "click",
+  async function() {
 
-  try {
+    try {
 
-    statusBox.textContent =
-      "Requesting camera permission...";
+      statusBox.textContent =
+        "Requesting camera permission...";
 
-    stream = await navigator.mediaDevices.getUserMedia({
+      stream =
+        await navigator.mediaDevices.getUserMedia({
 
-      video: {
-        facingMode: {
-          ideal: "environment"
-        },
+          video: {
 
-        width: {
-          ideal: 1920
-        },
+            facingMode: {
+              ideal: "environment"
+            },
 
-        height: {
-          ideal: 1080
-        }
-      },
+            width: {
+              ideal: 1920
+            },
 
-      audio: false
+            height: {
+              ideal: 1080
+            }
 
-    });
+          },
 
-    video.srcObject = stream;
+          audio: false
 
-    await video.play();
+        });
 
-    cameraCheck.className = "check good";
 
-    cameraCheck.textContent =
-      "✅ Camera: READY";
+      video.srcObject =
+        stream;
 
-    statusBox.textContent =
-      "Camera ready. Position ONE complete student panel inside the green frame.";
+      await video.play();
 
-    startBtn.style.display = "none";
 
-    startQRScanning();
+      cameraCheck.className =
+        "check good";
+
+      cameraCheck.textContent =
+        "✅ Camera: READY";
+
+
+      statusBox.textContent =
+        "Camera ready. Position ONE complete student panel inside the green frame.";
+
+
+      startBtn.style.display =
+        "none";
+
+
+      startQRScanning();
+
+    }
+
+    catch(error) {
+
+      cameraCheck.className =
+        "check bad";
+
+      cameraCheck.textContent =
+        "❌ Camera: ERROR";
+
+
+      statusBox.textContent =
+        "Camera could not start. Please allow camera permission and try again.";
+
+
+      console.error(error);
+
+    }
 
   }
-
-  catch(error) {
-
-    cameraCheck.className = "check bad";
-
-    cameraCheck.textContent =
-      "❌ Camera: ERROR";
-
-    statusBox.textContent =
-      "Camera could not start. Please allow camera permission and try again.";
-
-    console.error(error);
-
-  }
-
-});
+);
 
 
 /* =========================================================
@@ -382,21 +447,34 @@ startBtn.addEventListener("click", async function() {
 function startQRScanning() {
 
   if (scanTimer) {
+
     clearInterval(scanTimer);
+
   }
 
-  scanTimer = setInterval(function() {
 
-    if (
-      !video.videoWidth ||
-      !video.videoHeight
-    ) {
-      return;
-    }
+  scanTimer =
+    setInterval(
 
-    scanLiveQRCodes();
+      function() {
 
-  }, 400);
+        if (
+          !video.videoWidth ||
+          !video.videoHeight
+        ) {
+
+          return;
+
+        }
+
+
+        scanLiveQRCodes();
+
+      },
+
+      400
+
+    );
 
 }
 
@@ -427,27 +505,36 @@ function getVideoContentRect() {
   const rect =
     video.getBoundingClientRect();
 
+
   const videoAR =
     video.videoWidth /
     video.videoHeight;
 
+
   const elementAR =
     rect.width /
     rect.height;
+
 
   let width;
   let height;
   let left;
   let top;
 
-  if (videoAR > elementAR) {
 
-    width = rect.width;
+  if (
+    videoAR > elementAR
+  ) {
+
+    width =
+      rect.width;
 
     height =
-      rect.width / videoAR;
+      rect.width /
+      videoAR;
 
-    left = rect.left;
+    left =
+      rect.left;
 
     top =
       rect.top +
@@ -457,12 +544,15 @@ function getVideoContentRect() {
 
   else {
 
-    height = rect.height;
+    height =
+      rect.height;
 
     width =
-      rect.height * videoAR;
+      rect.height *
+      videoAR;
 
-    top = rect.top;
+    top =
+      rect.top;
 
     left =
       rect.left +
@@ -470,11 +560,14 @@ function getVideoContentRect() {
 
   }
 
+
   return {
+
     left,
     top,
     width,
     height
+
   };
 
 }
@@ -489,76 +582,130 @@ function getPanelCropCanvas() {
   const frame =
     document.getElementById("guide");
 
+
   const frameRect =
     frame.getBoundingClientRect();
 
+
   const videoRect =
     getVideoContentRect();
+
 
   let x =
     (frameRect.left - videoRect.left) /
     videoRect.width;
 
+
   let y =
     (frameRect.top - videoRect.top) /
     videoRect.height;
+
 
   let w =
     frameRect.width /
     videoRect.width;
 
+
   let h =
     frameRect.height /
     videoRect.height;
 
+
   x =
-    Math.max(0, Math.min(1, x));
+    Math.max(
+      0,
+      Math.min(1, x)
+    );
+
 
   y =
-    Math.max(0, Math.min(1, y));
+    Math.max(
+      0,
+      Math.min(1, y)
+    );
+
 
   w =
-    Math.max(0, Math.min(1 - x, w));
+    Math.max(
+      0,
+      Math.min(1 - x, w)
+    );
+
 
   h =
-    Math.max(0, Math.min(1 - y, h));
+    Math.max(
+      0,
+      Math.min(1 - y, h)
+    );
+
 
   const sx =
-    Math.round(x * video.videoWidth);
+    Math.round(
+      x * video.videoWidth
+    );
+
 
   const sy =
-    Math.round(y * video.videoHeight);
+    Math.round(
+      y * video.videoHeight
+    );
+
 
   const sw =
-    Math.round(w * video.videoWidth);
+    Math.round(
+      w * video.videoWidth
+    );
+
 
   const sh =
-    Math.round(h * video.videoHeight);
+    Math.round(
+      h * video.videoHeight
+    );
+
 
   if (
     sw <= 0 ||
     sh <= 0
   ) {
+
     return null;
+
   }
 
-  const maxSize = 1800;
+
+  const maxSize =
+    1800;
+
 
   const scale =
     Math.min(
+
       maxSize / sw,
+
       maxSize / sh,
+
       1
+
     );
 
+
   const canvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
+
 
   canvas.width =
-    Math.round(sw * scale);
+    Math.round(
+      sw * scale
+    );
+
 
   canvas.height =
-    Math.round(sh * scale);
+    Math.round(
+      sh * scale
+    );
+
 
   const ctx =
     canvas.getContext(
@@ -568,17 +715,24 @@ function getPanelCropCanvas() {
       }
     );
 
+
   ctx.drawImage(
+
     video,
+
     sx,
     sy,
     sw,
     sh,
+
     0,
     0,
+
     canvas.width,
     canvas.height
+
   );
+
 
   return canvas;
 
@@ -587,8 +741,6 @@ function getPanelCropCanvas() {
 
 /* =========================================================
    LIVE QR DETECTION
-   IMPORTANT:
-   Once detected, QR information is LOCKED.
    ========================================================= */
 
 function scanLiveQRCodes() {
@@ -597,46 +749,64 @@ function scanLiveQRCodes() {
     qrLocked ||
     captureInProgress
   ) {
+
     return;
+
   }
+
 
   const canvas =
     getPanelCropCanvas();
 
+
   if (!canvas) {
+
     return;
+
   }
+
 
   const found =
     scanQRCodeCandidates(canvas);
 
+
   let student = "";
+
   let test = "";
 
-  found.forEach(function(value) {
 
-    value =
-      String(value).trim();
+  found.forEach(
 
-    if (
-      /^\d{8,15}$/.test(value)
-    ) {
+    function(value) {
 
-      student = value;
+      value =
+        String(value).trim();
+
+
+      if (
+        /^\d{8,15}$/.test(value)
+      ) {
+
+        student =
+          value;
+
+      }
+
+
+      if (
+        /-/i.test(value) ||
+        /^G\d+/i.test(value) ||
+        /^TEST/i.test(value)
+      ) {
+
+        test =
+          value;
+
+      }
 
     }
 
-    if (
-      /-/i.test(value) ||
-      /^G\d+/i.test(value) ||
-      /^TEST/i.test(value)
-    ) {
-
-      test = value;
-
-    }
-
-  });
+  );
 
 
   /* STUDENT QR */
@@ -646,8 +816,10 @@ function scanLiveQRCodes() {
     detectedLRN =
       student;
 
+
     studentCheck.className =
       "check good";
+
 
     studentCheck.textContent =
       "✅ Student QR: " +
@@ -663,8 +835,10 @@ function scanLiveQRCodes() {
     detectedTestID =
       test;
 
+
     testCheck.className =
       "check good";
+
 
     testCheck.textContent =
       "✅ Test QR: " +
@@ -682,21 +856,30 @@ function scanLiveQRCodes() {
 
     qrLocked = true;
 
-    captureBtn.disabled = false;
+
+    captureBtn.disabled =
+      false;
+
 
     panelCheck.className =
       "check good";
 
+
     panelCheck.textContent =
       "✅ OMR Panel: READY";
 
-    readyMessage.className = "";
+
+    readyMessage.className =
+      "";
+
 
     readyMessage.textContent =
       "🟢 READY TO CAPTURE";
 
+
     readyMessage.style.background =
       "#075d2d";
+
 
     statusBox.textContent =
       "✅ BOTH QR CODES DETECTED. Keep the paper still and press CAPTURE STUDENT.";
@@ -714,9 +897,9 @@ function scanQRCodeCandidates(canvas) {
 
   const results = [];
 
+
   const regions = [
 
-    /* Whole panel */
     {
       x: 0,
       y: 0,
@@ -724,7 +907,6 @@ function scanQRCodeCandidates(canvas) {
       h: 1
     },
 
-    /* Upper-right */
     {
       x: 0.45,
       y: 0,
@@ -732,7 +914,6 @@ function scanQRCodeCandidates(canvas) {
       h: 0.35
     },
 
-    /* Student QR */
     {
       x: 0.58,
       y: 0,
@@ -740,7 +921,6 @@ function scanQRCodeCandidates(canvas) {
       h: 0.30
     },
 
-    /* Test QR */
     {
       x: 0.70,
       y: 0,
@@ -748,7 +928,6 @@ function scanQRCodeCandidates(canvas) {
       h: 0.30
     },
 
-    /* Wide upper area */
     {
       x: 0.35,
       y: 0,
@@ -759,116 +938,171 @@ function scanQRCodeCandidates(canvas) {
   ];
 
 
-  regions.forEach(function(region) {
+  regions.forEach(
 
-    const rw =
-      Math.round(
-        canvas.width *
-        region.w
-      );
+    function(region) {
 
-    const rh =
-      Math.round(
-        canvas.height *
-        region.h
-      );
+      const rw =
+        Math.round(
+          canvas.width *
+          region.w
+        );
 
-    const rx =
-      Math.round(
-        canvas.width *
-        region.x
-      );
 
-    const ry =
-      Math.round(
-        canvas.height *
-        region.y
-      );
+      const rh =
+        Math.round(
+          canvas.height *
+          region.h
+        );
 
-    if (
-      rw < 100 ||
-      rh < 100
-    ) {
-      return;
-    }
 
-    const qrCanvas =
-      document.createElement("canvas");
+      const rx =
+        Math.round(
+          canvas.width *
+          region.x
+        );
 
-    const scale =
-      Math.max(
-        1,
-        Math.min(
-          3,
-          900 /
-          Math.max(rw, rh)
-        )
-      );
 
-    qrCanvas.width =
-      Math.round(rw * scale);
+      const ry =
+        Math.round(
+          canvas.height *
+          region.y
+        );
 
-    qrCanvas.height =
-      Math.round(rh * scale);
-
-    const qrCtx =
-      qrCanvas.getContext(
-        "2d",
-        {
-          willReadFrequently: true
-        }
-      );
-
-    qrCtx.drawImage(
-      canvas,
-      rx,
-      ry,
-      rw,
-      rh,
-      0,
-      0,
-      qrCanvas.width,
-      qrCanvas.height
-    );
-
-    const imageData =
-      qrCtx.getImageData(
-        0,
-        0,
-        qrCanvas.width,
-        qrCanvas.height
-      );
-
-    const code =
-      jsQR(
-        imageData.data,
-        imageData.width,
-        imageData.height,
-        {
-          inversionAttempts:
-            "attemptBoth"
-        }
-      );
-
-    if (
-      code &&
-      code.data
-    ) {
-
-      const value =
-        String(code.data).trim();
 
       if (
-        !results.includes(value)
+        rw < 100 ||
+        rh < 100
       ) {
 
-        results.push(value);
+        return;
+
+      }
+
+
+      const qrCanvas =
+        document.createElement(
+          "canvas"
+        );
+
+
+      const scale =
+        Math.max(
+
+          1,
+
+          Math.min(
+
+            3,
+
+            900 /
+            Math.max(
+              rw,
+              rh
+            )
+
+          )
+
+        );
+
+
+      qrCanvas.width =
+        Math.round(
+          rw * scale
+        );
+
+
+      qrCanvas.height =
+        Math.round(
+          rh * scale
+        );
+
+
+      const qrCtx =
+        qrCanvas.getContext(
+          "2d",
+          {
+            willReadFrequently: true
+          }
+        );
+
+
+      qrCtx.drawImage(
+
+        canvas,
+
+        rx,
+        ry,
+        rw,
+        rh,
+
+        0,
+        0,
+
+        qrCanvas.width,
+        qrCanvas.height
+
+      );
+
+
+      const imageData =
+        qrCtx.getImageData(
+
+          0,
+          0,
+
+          qrCanvas.width,
+          qrCanvas.height
+
+        );
+
+
+      const code =
+        jsQR(
+
+          imageData.data,
+
+          imageData.width,
+
+          imageData.height,
+
+          {
+            inversionAttempts:
+              "attemptBoth"
+          }
+
+        );
+
+
+      if (
+        code &&
+        code.data
+      ) {
+
+        const value =
+          String(
+            code.data
+          ).trim();
+
+
+        if (
+          !results.includes(
+            value
+          )
+        ) {
+
+          results.push(
+            value
+          );
+
+        }
 
       }
 
     }
 
-  });
+  );
+
 
   return results;
 
@@ -880,7 +1114,9 @@ function scanQRCodeCandidates(canvas) {
    ========================================================= */
 
 captureBtn.addEventListener(
+
   "click",
+
   function() {
 
     if (
@@ -898,21 +1134,27 @@ captureBtn.addEventListener(
 
     /* LOCK EVERYTHING */
 
-    captureInProgress = true;
-    qrLocked = true;
+    captureInProgress =
+      true;
+
+    qrLocked =
+      true;
+
 
     stopQRScanning();
 
-    captureBtn.disabled = true;
 
+    captureBtn.disabled =
+      true;
 
-    /* VERY OBVIOUS PROCESSING MESSAGE */
 
     readyMessage.className =
       "processing";
 
+
     readyMessage.textContent =
       "🔵 SCANNING — PLEASE WAIT";
+
 
     statusBox.textContent =
       "📸 Capturing ONE student panel and reading all 50 answers...";
@@ -924,19 +1166,28 @@ captureBtn.addEventListener(
 
     if (!canvas) {
 
-      captureInProgress = false;
-      qrLocked = false;
+      captureInProgress =
+        false;
+
+      qrLocked =
+        false;
+
 
       readyMessage.className =
         "error";
 
+
       readyMessage.textContent =
         "❌ CAPTURE FAILED";
+
 
       statusBox.textContent =
         "Could not capture the student panel. Please try again.";
 
-      captureBtn.disabled = false;
+
+      captureBtn.disabled =
+        false;
+
 
       startQRScanning();
 
@@ -965,17 +1216,37 @@ captureBtn.addEventListener(
     };
 
 
-    /* SHOW IMMEDIATE PROCESSING INFORMATION */
+    /* SHOW PROCESSING */
 
     resultBox.textContent =
+
       "Student LRN: " +
       payload.lrn +
+
       "\n" +
+
       "Test ID: " +
       payload.testId +
+
       "\n\n" +
-      "50 answers analyzed.\n\n" +
-      "Sending result to School OMR Scanner...";
+
+      "50 answers analyzed." +
+
+      "\n\n" +
+
+      "Sending result to School OMR Scanner..." ;
+
+
+    /*
+     ========================================================
+     DIRECT CONNECTION TO APPS SCRIPT
+     ========================================================
+
+     IMPORTANT:
+     We no longer use window.opener.
+     The browser directly opens the Apps Script Web App.
+
+    */
 
 
     sendResultToAppsScript(
@@ -983,6 +1254,7 @@ captureBtn.addEventListener(
     );
 
   }
+
 );
 
 
@@ -995,27 +1267,39 @@ function readOMR(canvas) {
 
   const ctx =
     canvas.getContext(
+
       "2d",
+
       {
-        willReadFrequently: true
+        willReadFrequently:
+          true
       }
+
     );
 
+
   const xPositions = [
+
     0.158,
     0.216,
     0.275,
     0.333
+
   ];
 
+
   const xPositionsSecond = [
+
     0.591,
     0.649,
     0.708,
     0.766
+
   ];
 
+
   const answers = [];
+
 
   for (
     let item = 1;
@@ -1026,17 +1310,32 @@ function readOMR(canvas) {
     const row =
       (item - 1) % 25;
 
+
     const y =
+
       0.115 +
-      (0.960 - 0.115) *
-      (row / 24);
+
+      (
+        0.960 -
+        0.115
+      ) *
+
+      (
+        row / 24
+      );
+
 
     const xs =
+
       item <= 25
+
         ? xPositions
+
         : xPositionsSecond;
 
+
     const scores = [];
+
 
     for (
       let option = 0;
@@ -1045,12 +1344,17 @@ function readOMR(canvas) {
     ) {
 
       scores.push(
+
         measureBubble(
+
           canvas,
           ctx,
+
           xs[option],
           y
+
         )
+
       );
 
     }
@@ -1059,6 +1363,7 @@ function readOMR(canvas) {
     /* ONLY FULLY SHADED */
 
     const full = [];
+
 
     for (
       let i = 0;
@@ -1082,12 +1387,15 @@ function readOMR(canvas) {
     ) {
 
       answers.push(
+
         [
           "A",
           "B",
           "C",
           "D"
+
         ][full[0]]
+
       );
 
     }
@@ -1110,6 +1418,7 @@ function readOMR(canvas) {
 
   }
 
+
   return answers;
 
 }
@@ -1120,164 +1429,288 @@ function readOMR(canvas) {
    ========================================================= */
 
 function measureBubble(
+
   canvas,
   ctx,
   nx,
   ny
+
 ) {
 
   const x =
     Math.round(
-      nx * canvas.width
+      nx *
+      canvas.width
     );
+
 
   const y =
     Math.round(
-      ny * canvas.height
+      ny *
+      canvas.height
     );
+
 
   const radius =
     Math.max(
+
       8,
+
       Math.round(
+
         Math.min(
+
           canvas.width,
           canvas.height
-        ) * 0.014
+
+        ) *
+
+        0.014
+
       )
+
     );
 
+
   const innerRadius =
-    radius * 0.55;
+    radius *
+    0.55;
+
 
   const ringInner =
-    radius * 0.78;
+    radius *
+    0.78;
+
 
   const ringOuter =
-    radius * 0.98;
+    radius *
+    0.98;
 
-  let innerDark = 0;
-  let innerCount = 0;
 
-  let ringDark = 0;
-  let ringCount = 0;
+  let innerDark =
+    0;
+
+  let innerCount =
+    0;
+
+
+  let ringDark =
+    0;
+
+  let ringCount =
+    0;
+
 
   const box =
-    radius + 2;
+    radius +
+    2;
+
 
   const startX =
     Math.max(
+
       0,
-      x - box
+
+      x -
+      box
+
     );
+
 
   const startY =
     Math.max(
+
       0,
-      y - box
+
+      y -
+      box
+
     );
+
 
   const width =
     Math.min(
-      canvas.width - startX,
-      box * 2 + 1
+
+      canvas.width -
+      startX,
+
+      box *
+      2 +
+      1
+
     );
+
 
   const height =
     Math.min(
-      canvas.height - startY,
-      box * 2 + 1
+
+      canvas.height -
+      startY,
+
+      box *
+      2 +
+      1
+
     );
+
 
   const image =
     ctx.getImageData(
+
       startX,
       startY,
+
       width,
       height
+
     );
 
 
   for (
-    let py = -radius;
+
+    let py =
+      -radius;
+
     py <= radius;
+
     py++
+
   ) {
 
     for (
-      let px = -radius;
+
+      let px =
+        -radius;
+
       px <= radius;
+
       px++
+
     ) {
 
       const distance =
         Math.sqrt(
-          px * px +
-          py * py
+
+          px *
+          px +
+
+          py *
+          py
+
         );
 
+
       if (
-        distance > radius
+        distance >
+        radius
       ) {
+
         continue;
+
       }
+
 
       const gx =
-        x + px;
+        x +
+        px;
+
 
       const gy =
-        y + py;
+        y +
+        py;
+
 
       if (
+
         gx < 0 ||
+
         gy < 0 ||
+
         gx >= canvas.width ||
+
         gy >= canvas.height
+
       ) {
+
         continue;
+
       }
+
 
       const localX =
-        gx - startX;
+        gx -
+        startX;
+
 
       const localY =
-        gy - startY;
+        gy -
+        startY;
+
 
       if (
+
         localX < 0 ||
+
         localY < 0 ||
+
         localX >= width ||
+
         localY >= height
+
       ) {
+
         continue;
+
       }
 
+
       const index =
+
         (
-          localY * width +
+
+          localY *
+          width +
+
           localX
-        ) * 4;
+
+        ) *
+
+        4;
+
 
       const r =
         image.data[index];
 
+
       const g =
-        image.data[index + 1];
+        image.data[
+          index + 1
+        ];
+
 
       const b =
-        image.data[index + 2];
+        image.data[
+          index + 2
+        ];
+
 
       const gray =
+
         0.299 * r +
+
         0.587 * g +
+
         0.114 * b;
 
+
       const darkness =
-        255 - gray;
+        255 -
+        gray;
 
 
       if (
-        distance <= innerRadius
+        distance <=
+        innerRadius
       ) {
 
         innerDark +=
@@ -1288,8 +1721,13 @@ function measureBubble(
       }
 
       else if (
-        distance >= ringInner &&
-        distance <= ringOuter
+
+        distance >=
+        ringInner &&
+
+        distance <=
+        ringOuter
+
       ) {
 
         ringDark +=
@@ -1305,8 +1743,11 @@ function measureBubble(
 
 
   if (
+
     innerCount === 0 ||
+
     ringCount === 0
+
   ) {
 
     return 0;
@@ -1315,14 +1756,19 @@ function measureBubble(
 
 
   const innerAverage =
+
     innerDark /
     innerCount;
 
+
   const ringAverage =
+
     ringDark /
     ringCount;
 
+
   const difference =
+
     innerAverage -
     ringAverage;
 
@@ -1342,201 +1788,52 @@ function measureBubble(
 
 
 /* =========================================================
-   SEND TO APPS SCRIPT
+   SEND DIRECTLY TO APPS SCRIPT
    ========================================================= */
 
 function sendResultToAppsScript(
   payload
 ) {
 
-  if (
-    !window.opener
-  ) {
+  /*
+   * Convert the scan into a compact JSON string.
+   */
 
-    readyMessage.className =
-      "error";
-
-    readyMessage.textContent =
-      "❌ NO SCHOOL OMR WINDOW";
-
-    statusBox.textContent =
-      "Please open the camera from the School OMR Scanner Web App.";
-
-    captureInProgress = false;
-
-    return;
-
-  }
+  const data =
+    JSON.stringify(payload);
 
 
-  window.opener.postMessage(
+  /*
+   * Build the Apps Script Web App URL.
+   */
 
-    {
-      type:
-        "BOSSING_OMR_RESULT",
+  const url =
 
-      payload:
-        payload
-    },
+    APPS_SCRIPT_URL +
 
-    "*"
+    "?action=saveOmr&data=" +
 
-  );
+    encodeURIComponent(data);
 
+
+  /*
+   * IMPORTANT:
+   *
+   * We deliberately navigate directly to Apps Script.
+   *
+   * No window.opener.
+   * No postMessage.
+   * No School OMR window requirement.
+   */
 
   statusBox.textContent =
-    "Result sent to School OMR Scanner. Please wait for confirmation...";
+    "📡 Sending scan directly to School OMR Scanner...";
+
+
+  window.location.href =
+    url;
 
 }
-
-
-/* =========================================================
-   RECEIVE APPS SCRIPT RESPONSE
-   ========================================================= */
-
-window.addEventListener(
-  "message",
-  function(event) {
-
-    if (
-      !event.data ||
-      !event.data.type
-    ) {
-      return;
-    }
-
-
-    /* ================================
-       SAVED SUCCESSFULLY
-       ================================ */
-
-    if (
-      event.data.type ===
-      "BOSSING_SAVED"
-    ) {
-
-      captureInProgress = false;
-      qrLocked = true;
-
-      readyMessage.className =
-        "success";
-
-      readyMessage.textContent =
-        "🟢 SCAN SUCCESSFUL — RESULT SAVED";
-
-
-      statusBox.textContent =
-        "✅ SUCCESS! The result has been saved to SCAN_RESULTS.";
-
-
-      resultBox.textContent =
-        "SCAN SUCCESSFUL\n\n" +
-        "Student LRN: " +
-        detectedLRN +
-        "\n" +
-        "Test ID: " +
-        detectedTestID +
-        "\n\n" +
-        "✅ Result successfully saved to SCAN_RESULTS.\n\n" +
-        "You may now scan the next student.";
-
-
-      nextBtn.style.display =
-        "block";
-
-      captureBtn.style.display =
-        "none";
-
-      return;
-
-    }
-
-
-    /* ================================
-       DUPLICATE
-       ================================ */
-
-    if (
-      event.data.type ===
-      "BOSSING_DUPLICATE"
-    ) {
-
-      captureInProgress = false;
-      qrLocked = true;
-
-      readyMessage.className =
-        "warning";
-
-      readyMessage.textContent =
-        "🟠 ALREADY SCANNED";
-
-
-      statusBox.textContent =
-        "This student and test combination has already been scanned.";
-
-
-      resultBox.textContent =
-        "DUPLICATE SCAN\n\n" +
-        "Student LRN: " +
-        detectedLRN +
-        "\n" +
-        "Test ID: " +
-        detectedTestID +
-        "\n\n" +
-        "⚠️ No duplicate row was added.";
-
-
-      nextBtn.style.display =
-        "block";
-
-      captureBtn.style.display =
-        "none";
-
-      return;
-
-    }
-
-
-    /* ================================
-       SAVE ERROR
-       ================================ */
-
-    if (
-      event.data.type ===
-      "BOSSING_SAVE_ERROR"
-    ) {
-
-      captureInProgress = false;
-
-      readyMessage.className =
-        "error";
-
-      readyMessage.textContent =
-        "❌ SAVE FAILED";
-
-
-      statusBox.textContent =
-        "The scan was captured, but Apps Script could not save it.";
-
-
-      resultBox.textContent =
-        "SAVE ERROR\n\n" +
-        String(
-          event.data.message ||
-          "Unknown error"
-        ) +
-        "\n\nPlease do not scan the same paper repeatedly until the problem is checked.";
-
-
-      captureBtn.disabled =
-        false;
-
-      return;
-
-    }
-
-  }
-);
 
 
 /* =========================================================
@@ -1544,18 +1841,27 @@ window.addEventListener(
    ========================================================= */
 
 nextBtn.addEventListener(
+
   "click",
+
   function() {
 
-    detectedLRN = "";
-    detectedTestID = "";
+    detectedLRN =
+      "";
 
-    qrLocked = false;
-    captureInProgress = false;
+    detectedTestID =
+      "";
+
+    qrLocked =
+      false;
+
+    captureInProgress =
+      false;
 
 
     studentCheck.className =
       "check waiting";
+
 
     studentCheck.textContent =
       "⏳ Student QR: Looking...";
@@ -1564,6 +1870,7 @@ nextBtn.addEventListener(
     testCheck.className =
       "check waiting";
 
+
     testCheck.textContent =
       "⏳ Test QR: Looking...";
 
@@ -1571,14 +1878,18 @@ nextBtn.addEventListener(
     panelCheck.className =
       "check waiting";
 
+
     panelCheck.textContent =
       "⏳ OMR Panel: Position inside green frame";
 
 
-    readyMessage.className = "";
+    readyMessage.className =
+      "";
+
 
     readyMessage.textContent =
       "WAITING FOR QR CODES...";
+
 
     readyMessage.style.background =
       "#333";
@@ -1588,11 +1899,13 @@ nextBtn.addEventListener(
       "Position the NEXT student panel inside the green frame.";
 
 
-    resultBox.textContent = "";
+    resultBox.textContent =
+      "";
 
 
     captureBtn.style.display =
       "block";
+
 
     captureBtn.disabled =
       true;
@@ -1605,6 +1918,7 @@ nextBtn.addEventListener(
     startQRScanning();
 
   }
+
 );
 
 </script>
