@@ -1,183 +1,216 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>School OMR Scanner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School OMR Scanner</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
 
-    body {
-      margin: 0;
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    h1 {
-      margin: 12px 0 4px;
-      font-size: 22px;
-    }
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
 
-    #instruction {
-      margin: 0 auto 10px;
-      max-width: 700px;
-      font-size: 15px;
-      color: #ddd;
-    }
+h1 {
+  margin: 12px 0 4px;
+  font-size: 22px;
+}
 
-    #cameraArea {
-      position: relative;
-      width: 100%;
-      max-width: 700px;
-      margin: auto;
-      background: #000;
-      overflow: hidden;
-    }
+#instruction {
+  margin: 0 auto 10px;
+  max-width: 700px;
+  font-size: 15px;
+  color: #ddd;
+  padding: 0 10px;
+}
 
-    video {
-      display: block;
-      width: 100%;
-      height: auto;
-      max-height: 72vh;
-      object-fit: contain;
-      background: #000;
-    }
+#cameraArea {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  margin: auto;
+  background: #000;
+  overflow: hidden;
+}
 
-    /* Green guide */
-    #guide {
-      position: absolute;
-      width: 67%;
-      aspect-ratio: 0.8221;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      border: 4px solid #00ff66;
-      border-radius: 8px;
-      pointer-events: none;
-      box-shadow: 0 0 12px rgba(0,255,100,.8);
-    }
+video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 72vh;
+  object-fit: contain;
+  background: #000;
+}
 
-    #guideLabel {
-      position: absolute;
-      top: -30px;
-      left: 0;
-      right: 0;
-      color: #00ff66;
-      font-weight: bold;
-      font-size: 14px;
-      text-shadow: 0 1px 3px #000;
-    }
+/* GREEN GUIDE */
 
-    #checklist {
-      width: calc(100% - 20px);
-      max-width: 700px;
-      margin: 12px auto;
-      background: #222;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: left;
-    }
+#guide {
+  position: absolute;
+  width: 67%;
+  aspect-ratio: 0.8221;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 4px solid #00ff66;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(0,255,100,.8);
+}
 
-    .check {
-      padding: 7px 10px;
-      margin: 4px 0;
-      border-radius: 6px;
-      background: #333;
-      font-size: 15px;
-    }
+#guideLabel {
+  position: absolute;
+  top: -32px;
+  left: 0;
+  right: 0;
+  color: #00ff66;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 1px 3px #000;
+}
 
-    .waiting {
-      color: #ffcc00;
-    }
+/* CHECKLIST */
 
-    .good {
-      color: #00ff66;
-      font-weight: bold;
-    }
+#checklist {
+  width: calc(100% - 20px);
+  max-width: 700px;
+  margin: 12px auto;
+  background: #222;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: left;
+}
 
-    .bad {
-      color: #ff5555;
-      font-weight: bold;
-    }
+.check {
+  padding: 8px 10px;
+  margin: 5px 0;
+  border-radius: 6px;
+  background: #333;
+  font-size: 15px;
+}
 
-    #readyMessage {
-      margin: 8px auto;
-      width: calc(100% - 20px);
-      max-width: 700px;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: bold;
-      background: #333;
-    }
+.waiting {
+  color: #ffcc00;
+}
 
-    #status {
-      width: calc(100% - 20px);
-      max-width: 700px;
-      margin: 8px auto;
-      min-height: 42px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #222;
-      font-size: 14px;
-    }
+.good {
+  color: #00ff66;
+  font-weight: bold;
+}
 
-    button {
-      width: calc(100% - 30px);
-      max-width: 600px;
-      padding: 15px;
-      margin: 7px auto;
-      display: block;
-      border: none;
-      border-radius: 9px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.bad {
+  color: #ff5555;
+  font-weight: bold;
+}
 
-    #startBtn {
-      background: #007bff;
-      color: white;
-    }
+/* MAIN STATUS */
 
-    #captureBtn {
-      background: #00c853;
-      color: white;
-    }
+#readyMessage {
+  margin: 10px auto;
+  width: calc(100% - 20px);
+  max-width: 700px;
+  padding: 15px 10px;
+  border-radius: 9px;
+  font-weight: bold;
+  font-size: 20px;
+  background: #333;
+}
 
-    #captureBtn:disabled {
-      background: #555;
-      color: #aaa;
-      cursor: not-allowed;
-    }
+#status {
+  width: calc(100% - 20px);
+  max-width: 700px;
+  margin: 8px auto;
+  min-height: 50px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #222;
+  font-size: 15px;
+}
 
-    #nextBtn {
-      background: #ff9800;
-      color: white;
-      display: none;
-    }
+/* BUTTONS */
 
-    #result {
-      width: calc(100% - 20px);
-      max-width: 700px;
-      margin: 10px auto 25px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #222;
-      text-align: left;
-      white-space: pre-wrap;
-      font-size: 14px;
-    }
+button {
+  width: calc(100% - 30px);
+  max-width: 600px;
+  padding: 16px;
+  margin: 7px auto;
+  display: block;
+  border: none;
+  border-radius: 9px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    canvas {
-      display: none;
-    }
-  </style>
+#startBtn {
+  background: #007bff;
+  color: white;
+}
+
+#captureBtn {
+  background: #00c853;
+  color: white;
+}
+
+#captureBtn:disabled {
+  background: #555;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+#nextBtn {
+  background: #ff9800;
+  color: white;
+  display: none;
+}
+
+/* RESULT */
+
+#result {
+  width: calc(100% - 20px);
+  max-width: 700px;
+  margin: 10px auto 30px;
+  padding: 15px;
+  border-radius: 9px;
+  background: #222;
+  text-align: left;
+  white-space: pre-wrap;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+canvas {
+  display: none;
+}
+
+/* SUCCESS SCREEN */
+
+.success {
+  background: #087f23 !important;
+  font-size: 22px !important;
+}
+
+.processing {
+  background: #075a8a !important;
+}
+
+.warning {
+  background: #8a5a00 !important;
+}
+
+.error {
+  background: #7a0000 !important;
+}
+
+</style>
 </head>
 
 <body>
@@ -186,7 +219,7 @@
 
 <div id="instruction">
   Fit ONE student's complete answer-sheet panel inside the green frame.
-  The Student QR, Test QR, and all 50 answers must be visible.
+  Student QR, Test QR, and all 50 answers must be visible.
 </div>
 
 <div id="cameraArea">
@@ -194,7 +227,9 @@
   <video id="video" autoplay playsinline muted></video>
 
   <div id="guide">
-    <div id="guideLabel">FIT ONE STUDENT PANEL HERE</div>
+    <div id="guideLabel">
+      FIT ONE STUDENT PANEL HERE
+    </div>
   </div>
 
 </div>
@@ -245,7 +280,12 @@
 
 <script>
 
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
 const video = document.getElementById("video");
+
 const startBtn = document.getElementById("startBtn");
 const captureBtn = document.getElementById("captureBtn");
 const nextBtn = document.getElementById("nextBtn");
@@ -259,20 +299,12 @@ const readyMessage = document.getElementById("readyMessage");
 const statusBox = document.getElementById("status");
 const resultBox = document.getElementById("result");
 
-const workCanvas = document.getElementById("workCanvas");
-const workCtx = workCanvas.getContext("2d", {
-  willReadFrequently: true
-});
-
 let stream = null;
 let scanTimer = null;
 
 let detectedLRN = "";
 let detectedTestID = "";
 
-let lastScanTime = 0;
-
-/* IMPORTANT: prevents QR status from going back to "Looking..." */
 let qrLocked = false;
 let captureInProgress = false;
 
@@ -285,21 +317,27 @@ startBtn.addEventListener("click", async function() {
 
   try {
 
-    statusBox.textContent = "Requesting camera permission...";
+    statusBox.textContent =
+      "Requesting camera permission...";
 
     stream = await navigator.mediaDevices.getUserMedia({
+
       video: {
         facingMode: {
           ideal: "environment"
         },
+
         width: {
           ideal: 1920
         },
+
         height: {
           ideal: 1080
         }
       },
+
       audio: false
+
     });
 
     video.srcObject = stream;
@@ -307,28 +345,31 @@ startBtn.addEventListener("click", async function() {
     await video.play();
 
     cameraCheck.className = "check good";
-    cameraCheck.textContent = "✅ Camera: READY";
 
-    panelCheck.className = "check waiting";
-    panelCheck.textContent =
-      "⏳ OMR Panel: Position ONE student panel inside green frame";
+    cameraCheck.textContent =
+      "✅ Camera: READY";
 
     statusBox.textContent =
-      "Camera is ready. Position ONE complete student panel inside the green frame.";
+      "Camera ready. Position ONE complete student panel inside the green frame.";
 
     startBtn.style.display = "none";
 
     startQRScanning();
 
-  } catch (error) {
+  }
+
+  catch(error) {
 
     cameraCheck.className = "check bad";
-    cameraCheck.textContent = "❌ Camera: ERROR";
+
+    cameraCheck.textContent =
+      "❌ Camera: ERROR";
 
     statusBox.textContent =
       "Camera could not start. Please allow camera permission and try again.";
 
     console.error(error);
+
   }
 
 });
@@ -346,28 +387,53 @@ function startQRScanning() {
 
   scanTimer = setInterval(function() {
 
-    if (!video.videoWidth || !video.videoHeight) {
+    if (
+      !video.videoWidth ||
+      !video.videoHeight
+    ) {
       return;
     }
 
     scanLiveQRCodes();
 
   }, 400);
+
 }
 
 
 /* =========================================================
-   FIND THE ACTUAL VIDEO DISPLAY AREA
-   This prevents the green frame from becoming visually
-   offset from the actual camera image.
+   STOP QR SCANNING
+   ========================================================= */
+
+function stopQRScanning() {
+
+  if (scanTimer) {
+
+    clearInterval(scanTimer);
+
+    scanTimer = null;
+
+  }
+
+}
+
+
+/* =========================================================
+   GET ACTUAL VIDEO AREA
    ========================================================= */
 
 function getVideoContentRect() {
 
-  const rect = video.getBoundingClientRect();
+  const rect =
+    video.getBoundingClientRect();
 
-  const videoAR = video.videoWidth / video.videoHeight;
-  const elementAR = rect.width / rect.height;
+  const videoAR =
+    video.videoWidth /
+    video.videoHeight;
+
+  const elementAR =
+    rect.width /
+    rect.height;
 
   let width;
   let height;
@@ -377,39 +443,57 @@ function getVideoContentRect() {
   if (videoAR > elementAR) {
 
     width = rect.width;
-    height = rect.width / videoAR;
+
+    height =
+      rect.width / videoAR;
 
     left = rect.left;
-    top = rect.top + (rect.height - height) / 2;
 
-  } else {
+    top =
+      rect.top +
+      (rect.height - height) / 2;
+
+  }
+
+  else {
 
     height = rect.height;
-    width = rect.height * videoAR;
+
+    width =
+      rect.height * videoAR;
 
     top = rect.top;
-    left = rect.left + (rect.width - width) / 2;
+
+    left =
+      rect.left +
+      (rect.width - width) / 2;
+
   }
 
   return {
-    left: left,
-    top: top,
-    width: width,
-    height: height
+    left,
+    top,
+    width,
+    height
   };
+
 }
 
 
 /* =========================================================
-   CROP EXACTLY WHAT IS INSIDE GREEN FRAME
+   CAPTURE GREEN FRAME AREA
    ========================================================= */
 
 function getPanelCropCanvas() {
 
-  const frame = document.getElementById("guide");
+  const frame =
+    document.getElementById("guide");
 
-  const frameRect = frame.getBoundingClientRect();
-  const videoRect = getVideoContentRect();
+  const frameRect =
+    frame.getBoundingClientRect();
+
+  const videoRect =
+    getVideoContentRect();
 
   let x =
     (frameRect.left - videoRect.left) /
@@ -427,38 +511,62 @@ function getPanelCropCanvas() {
     frameRect.height /
     videoRect.height;
 
-  /* Clamp */
-  x = Math.max(0, Math.min(1, x));
-  y = Math.max(0, Math.min(1, y));
-  w = Math.max(0, Math.min(1 - x, w));
-  h = Math.max(0, Math.min(1 - y, h));
+  x =
+    Math.max(0, Math.min(1, x));
 
-  const sx = Math.round(x * video.videoWidth);
-  const sy = Math.round(y * video.videoHeight);
+  y =
+    Math.max(0, Math.min(1, y));
 
-  const sw = Math.round(w * video.videoWidth);
-  const sh = Math.round(h * video.videoHeight);
+  w =
+    Math.max(0, Math.min(1 - x, w));
 
-  if (sw <= 0 || sh <= 0) {
+  h =
+    Math.max(0, Math.min(1 - y, h));
+
+  const sx =
+    Math.round(x * video.videoWidth);
+
+  const sy =
+    Math.round(y * video.videoHeight);
+
+  const sw =
+    Math.round(w * video.videoWidth);
+
+  const sh =
+    Math.round(h * video.videoHeight);
+
+  if (
+    sw <= 0 ||
+    sh <= 0
+  ) {
     return null;
   }
 
-  const maxSize = 1600;
+  const maxSize = 1800;
 
-  let scale = Math.min(
-    maxSize / sw,
-    maxSize / sh,
-    1
-  );
+  const scale =
+    Math.min(
+      maxSize / sw,
+      maxSize / sh,
+      1
+    );
 
-  const canvas = document.createElement("canvas");
+  const canvas =
+    document.createElement("canvas");
 
-  canvas.width = Math.round(sw * scale);
-  canvas.height = Math.round(sh * scale);
+  canvas.width =
+    Math.round(sw * scale);
 
-  const ctx = canvas.getContext("2d", {
-    willReadFrequently: true
-  });
+  canvas.height =
+    Math.round(sh * scale);
+
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently: true
+      }
+    );
 
   ctx.drawImage(
     video,
@@ -473,103 +581,108 @@ function getPanelCropCanvas() {
   );
 
   return canvas;
+
 }
 
 
 /* =========================================================
-   QR SCANNING
-   We deliberately scan several areas instead of depending
-   on one exact QR coordinate.
+   LIVE QR DETECTION
+   IMPORTANT:
+   Once detected, QR information is LOCKED.
    ========================================================= */
+
 function scanLiveQRCodes() {
 
-  /* Once both QR codes are detected, LOCK them.
-     Do not allow a temporary camera blur to erase them. */
-
-  if (qrLocked || captureInProgress) {
+  if (
+    qrLocked ||
+    captureInProgress
+  ) {
     return;
   }
 
-  const canvas = getPanelCropCanvas();
+  const canvas =
+    getPanelCropCanvas();
 
   if (!canvas) {
     return;
   }
 
-  const found = scanQRCodeCandidates(canvas);
+  const found =
+    scanQRCodeCandidates(canvas);
 
   let student = "";
   let test = "";
 
   found.forEach(function(value) {
 
-    value = String(value).trim();
+    value =
+      String(value).trim();
 
-    /* LRN */
-    if (/^\d{8,15}$/.test(value)) {
+    if (
+      /^\d{8,15}$/.test(value)
+    ) {
+
       student = value;
+
     }
 
-    /* Test ID */
     if (
       /-/i.test(value) ||
       /^G\d+/i.test(value) ||
       /^TEST/i.test(value)
     ) {
+
       test = value;
+
     }
 
   });
 
 
-  /* -----------------------------------------
-     STUDENT QR
-     ----------------------------------------- */
+  /* STUDENT QR */
 
   if (student) {
 
-    detectedLRN = student;
+    detectedLRN =
+      student;
 
-    studentCheck.className = "check good";
+    studentCheck.className =
+      "check good";
 
     studentCheck.textContent =
-      "✅ Student QR: " + detectedLRN;
+      "✅ Student QR: " +
+      detectedLRN;
 
   }
 
 
-  /* -----------------------------------------
-     TEST QR
-     ----------------------------------------- */
+  /* TEST QR */
 
   if (test) {
 
-    detectedTestID = test;
+    detectedTestID =
+      test;
 
-    testCheck.className = "check good";
+    testCheck.className =
+      "check good";
 
     testCheck.textContent =
-      "✅ Test QR: " + detectedTestID;
+      "✅ Test QR: " +
+      detectedTestID;
 
   }
 
 
-  /* -----------------------------------------
-     BOTH QR CODES FOUND
-     ----------------------------------------- */
+  /* BOTH FOUND */
 
-  if (detectedLRN && detectedTestID) {
+  if (
+    detectedLRN &&
+    detectedTestID
+  ) {
 
-    /* LOCK the successful detection */
     qrLocked = true;
 
     captureBtn.disabled = false;
-
-    readyMessage.textContent =
-      "🟢 READY TO CAPTURE";
-
-    readyMessage.style.background =
-      "#075d2d";
 
     panelCheck.className =
       "check good";
@@ -577,15 +690,24 @@ function scanLiveQRCodes() {
     panelCheck.textContent =
       "✅ OMR Panel: READY";
 
+    readyMessage.className = "";
+
+    readyMessage.textContent =
+      "🟢 READY TO CAPTURE";
+
+    readyMessage.style.background =
+      "#075d2d";
+
     statusBox.textContent =
-      "✅ BOTH QR CODES DETECTED — KEEP THE PAPER STILL AND PRESS CAPTURE STUDENT.";
+      "✅ BOTH QR CODES DETECTED. Keep the paper still and press CAPTURE STUDENT.";
 
   }
+
 }
 
 
 /* =========================================================
-   SCAN MULTIPLE POSSIBLE QR AREAS
+   QR SEARCH
    ========================================================= */
 
 function scanQRCodeCandidates(canvas) {
@@ -594,7 +716,7 @@ function scanQRCodeCandidates(canvas) {
 
   const regions = [
 
-    /* Entire panel */
+    /* Whole panel */
     {
       x: 0,
       y: 0,
@@ -602,68 +724,100 @@ function scanQRCodeCandidates(canvas) {
       h: 1
     },
 
-    /* Upper-right section */
+    /* Upper-right */
     {
-      x: 0.50,
-      y: 0.00,
-      w: 0.50,
+      x: 0.45,
+      y: 0,
+      w: 0.55,
       h: 0.35
     },
 
-    /* Student QR area */
+    /* Student QR */
     {
-      x: 0.60,
-      y: 0.00,
-      w: 0.28,
-      h: 0.28
+      x: 0.58,
+      y: 0,
+      w: 0.30,
+      h: 0.30
     },
 
-    /* Test QR area */
+    /* Test QR */
     {
-      x: 0.72,
-      y: 0.00,
-      w: 0.28,
-      h: 0.28
+      x: 0.70,
+      y: 0,
+      w: 0.30,
+      h: 0.30
     },
 
-    /* Very wide top section */
+    /* Wide upper area */
     {
-      x: 0.40,
-      y: 0.00,
-      w: 0.60,
-      h: 0.25
+      x: 0.35,
+      y: 0,
+      w: 0.65,
+      h: 0.28
     }
 
   ];
 
+
   regions.forEach(function(region) {
 
-    const rw = Math.round(canvas.width * region.w);
-    const rh = Math.round(canvas.height * region.h);
+    const rw =
+      Math.round(
+        canvas.width *
+        region.w
+      );
 
-    const rx = Math.round(canvas.width * region.x);
-    const ry = Math.round(canvas.height * region.y);
+    const rh =
+      Math.round(
+        canvas.height *
+        region.h
+      );
 
-    if (rw < 100 || rh < 100) {
+    const rx =
+      Math.round(
+        canvas.width *
+        region.x
+      );
+
+    const ry =
+      Math.round(
+        canvas.height *
+        region.y
+      );
+
+    if (
+      rw < 100 ||
+      rh < 100
+    ) {
       return;
     }
 
-    const qrCanvas = document.createElement("canvas");
+    const qrCanvas =
+      document.createElement("canvas");
 
-    /*
-      Enlarge small QR regions.
-    */
-    const scale = Math.max(
-      1,
-      Math.min(3, 900 / Math.max(rw, rh))
-    );
+    const scale =
+      Math.max(
+        1,
+        Math.min(
+          3,
+          900 /
+          Math.max(rw, rh)
+        )
+      );
 
-    qrCanvas.width = Math.round(rw * scale);
-    qrCanvas.height = Math.round(rh * scale);
+    qrCanvas.width =
+      Math.round(rw * scale);
 
-    const qrCtx = qrCanvas.getContext("2d", {
-      willReadFrequently: true
-    });
+    qrCanvas.height =
+      Math.round(rh * scale);
+
+    const qrCtx =
+      qrCanvas.getContext(
+        "2d",
+        {
+          willReadFrequently: true
+        }
+      );
 
     qrCtx.drawImage(
       canvas,
@@ -685,98 +839,151 @@ function scanQRCodeCandidates(canvas) {
         qrCanvas.height
       );
 
-    const code = jsQR(
-      imageData.data,
-      imageData.width,
-      imageData.height,
-      {
-        inversionAttempts: "attemptBoth"
-      }
-    );
+    const code =
+      jsQR(
+        imageData.data,
+        imageData.width,
+        imageData.height,
+        {
+          inversionAttempts:
+            "attemptBoth"
+        }
+      );
 
-    if (code && code.data) {
+    if (
+      code &&
+      code.data
+    ) {
 
-      const value = String(code.data).trim();
+      const value =
+        String(code.data).trim();
 
-      if (!results.includes(value)) {
+      if (
+        !results.includes(value)
+      ) {
+
         results.push(value);
+
       }
+
     }
 
   });
 
   return results;
+
 }
 
 
 /* =========================================================
-   CAPTURE STUDENT
+   CAPTURE
    ========================================================= */
-captureBtn.addEventListener("click", function() {
 
-  if (!detectedLRN || !detectedTestID) {
+captureBtn.addEventListener(
+  "click",
+  function() {
 
-    statusBox.textContent =
-      "Please wait until BOTH QR codes are detected.";
+    if (
+      !detectedLRN ||
+      !detectedTestID
+    ) {
 
-    return;
-  }
+      statusBox.textContent =
+        "Please wait until BOTH QR codes are detected.";
 
-  /* LOCK everything during capture */
-  captureInProgress = true;
-  qrLocked = true;
+      return;
 
-  captureBtn.disabled = true;
+    }
 
-  readyMessage.textContent =
-    "🔵 SCANNING — PLEASE WAIT";
 
-  readyMessage.style.background =
-    "#075a8a";
+    /* LOCK EVERYTHING */
 
-  statusBox.textContent =
-    "📸 Capturing ONE student panel. Reading QR codes and 50 answers...";
+    captureInProgress = true;
+    qrLocked = true;
 
-  /* Stop continuous QR checking while capturing */
-  if (scanTimer) {
-    clearInterval(scanTimer);
-    scanTimer = null;
-  }
+    stopQRScanning();
 
-  const canvas = getPanelCropCanvas();
+    captureBtn.disabled = true;
 
-  if (!canvas) {
 
-    captureInProgress = false;
-    qrLocked = false;
+    /* VERY OBVIOUS PROCESSING MESSAGE */
+
+    readyMessage.className =
+      "processing";
 
     readyMessage.textContent =
-      "⚠️ CAPTURE FAILED";
-
-    readyMessage.style.background =
-      "#7a0000";
+      "🔵 SCANNING — PLEASE WAIT";
 
     statusBox.textContent =
-      "Could not capture the student panel. Please try again.";
+      "📸 Capturing ONE student panel and reading all 50 answers...";
 
-    captureBtn.disabled = false;
 
-    startQRScanning();
+    const canvas =
+      getPanelCropCanvas();
 
-    return;
+
+    if (!canvas) {
+
+      captureInProgress = false;
+      qrLocked = false;
+
+      readyMessage.className =
+        "error";
+
+      readyMessage.textContent =
+        "❌ CAPTURE FAILED";
+
+      statusBox.textContent =
+        "Could not capture the student panel. Please try again.";
+
+      captureBtn.disabled = false;
+
+      startQRScanning();
+
+      return;
+
+    }
+
+
+    /* READ ALL 50 ANSWERS */
+
+    const answers =
+      readOMR(canvas);
+
+
+    const payload = {
+
+      lrn:
+        detectedLRN,
+
+      testId:
+        detectedTestID,
+
+      answers:
+        answers
+
+    };
+
+
+    /* SHOW IMMEDIATE PROCESSING INFORMATION */
+
+    resultBox.textContent =
+      "Student LRN: " +
+      payload.lrn +
+      "\n" +
+      "Test ID: " +
+      payload.testId +
+      "\n\n" +
+      "50 answers analyzed.\n\n" +
+      "Sending result to School OMR Scanner...";
+
+
+    sendResultToAppsScript(
+      payload
+    );
+
   }
-
-  const answers = readOMR(canvas);
-
-  const payload = {
-    lrn: detectedLRN,
-    testId: detectedTestID,
-    answers: answers
-  };
-
-  sendResultToAppsScript(payload);
-
-});
+);
 
 
 /* =========================================================
@@ -786,16 +993,13 @@ captureBtn.addEventListener("click", function() {
 
 function readOMR(canvas) {
 
-  const ctx = canvas.getContext("2d", {
-    willReadFrequently: true
-  });
-
-  const width = canvas.width;
-  const height = canvas.height;
-
-  /*
-    Bubble X positions from the current printed OMR layout.
-  */
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently: true
+      }
+    );
 
   const xPositions = [
     0.158,
@@ -811,15 +1015,16 @@ function readOMR(canvas) {
     0.766
   ];
 
-  /*
-    Items 1-25 and 26-50 share the same Y positions.
-  */
-
   const answers = [];
 
-  for (let item = 1; item <= 50; item++) {
+  for (
+    let item = 1;
+    item <= 50;
+    item++
+  ) {
 
-    const row = (item - 1) % 25;
+    const row =
+      (item - 1) % 25;
 
     const y =
       0.115 +
@@ -833,44 +1038,71 @@ function readOMR(canvas) {
 
     const scores = [];
 
-    for (let option = 0; option < 4; option++) {
+    for (
+      let option = 0;
+      option < 4;
+      option++
+    ) {
 
-      const x = xs[option];
+      scores.push(
+        measureBubble(
+          canvas,
+          ctx,
+          xs[option],
+          y
+        )
+      );
 
-      const score =
-        measureBubble(canvas, ctx, x, y);
-
-      scores.push(score);
     }
 
-    /*
-      ONLY FULLY SHADED counts.
 
-      A bubble needs:
-      - enough darkness in its center
-      - enough difference from its printed outline
-    */
+    /* ONLY FULLY SHADED */
 
     const full = [];
 
-    for (let i = 0; i < scores.length; i++) {
+    for (
+      let i = 0;
+      i < scores.length;
+      i++
+    ) {
 
-      if (scores[i] >= 25) {
+      if (
+        scores[i] >= 25
+      ) {
+
         full.push(i);
+
       }
+
     }
 
-    if (full.length === 1) {
+
+    if (
+      full.length === 1
+    ) {
 
       answers.push(
-        ["A", "B", "C", "D"][full[0]]
+        [
+          "A",
+          "B",
+          "C",
+          "D"
+        ][full[0]]
       );
 
-    } else if (full.length >= 2) {
+    }
 
-      answers.push("MULTIPLE");
+    else if (
+      full.length >= 2
+    ) {
 
-    } else {
+      answers.push(
+        "MULTIPLE"
+      );
+
+    }
+
+    else {
 
       answers.push("");
 
@@ -879,26 +1111,39 @@ function readOMR(canvas) {
   }
 
   return answers;
+
 }
 
 
 /* =========================================================
-   MEASURE BUBBLE DARKNESS
+   MEASURE BUBBLE
    ========================================================= */
 
-function measureBubble(canvas, ctx, nx, ny) {
+function measureBubble(
+  canvas,
+  ctx,
+  nx,
+  ny
+) {
 
   const x =
-    Math.round(nx * canvas.width);
+    Math.round(
+      nx * canvas.width
+    );
 
   const y =
-    Math.round(ny * canvas.height);
+    Math.round(
+      ny * canvas.height
+    );
 
   const radius =
     Math.max(
       8,
       Math.round(
-        Math.min(canvas.width, canvas.height) * 0.014
+        Math.min(
+          canvas.width,
+          canvas.height
+        ) * 0.014
       )
     );
 
@@ -917,20 +1162,41 @@ function measureBubble(canvas, ctx, nx, ny) {
   let ringDark = 0;
   let ringCount = 0;
 
-  const box = radius + 2;
+  const box =
+    radius + 2;
 
-  const image = ctx.getImageData(
-    Math.max(0, x - box),
-    Math.max(0, y - box),
+  const startX =
+    Math.max(
+      0,
+      x - box
+    );
+
+  const startY =
+    Math.max(
+      0,
+      y - box
+    );
+
+  const width =
     Math.min(
-      canvas.width - Math.max(0, x - box),
+      canvas.width - startX,
       box * 2 + 1
-    ),
+    );
+
+  const height =
     Math.min(
-      canvas.height - Math.max(0, y - box),
+      canvas.height - startY,
       box * 2 + 1
-    )
-  );
+    );
+
+  const image =
+    ctx.getImageData(
+      startX,
+      startY,
+      width,
+      height
+    );
+
 
   for (
     let py = -radius;
@@ -945,9 +1211,14 @@ function measureBubble(canvas, ctx, nx, ny) {
     ) {
 
       const distance =
-        Math.sqrt(px * px + py * py);
+        Math.sqrt(
+          px * px +
+          py * py
+        );
 
-      if (distance > radius) {
+      if (
+        distance > radius
+      ) {
         continue;
       }
 
@@ -967,23 +1238,34 @@ function measureBubble(canvas, ctx, nx, ny) {
       }
 
       const localX =
-        gx - Math.max(0, x - box);
+        gx - startX;
 
       const localY =
-        gy - Math.max(0, y - box);
+        gy - startY;
 
-      const localWidth =
-        Math.min(
-          canvas.width - Math.max(0, x - box),
-          box * 2 + 1
-        );
+      if (
+        localX < 0 ||
+        localY < 0 ||
+        localX >= width ||
+        localY >= height
+      ) {
+        continue;
+      }
 
       const index =
-        (localY * localWidth + localX) * 4;
+        (
+          localY * width +
+          localX
+        ) * 4;
 
-      const r = image.data[index];
-      const g = image.data[index + 1];
-      const b = image.data[index + 2];
+      const r =
+        image.data[index];
+
+      const g =
+        image.data[index + 1];
+
+      const b =
+        image.data[index + 2];
 
       const gray =
         0.299 * r +
@@ -993,17 +1275,26 @@ function measureBubble(canvas, ctx, nx, ny) {
       const darkness =
         255 - gray;
 
-      if (distance <= innerRadius) {
 
-        innerDark += darkness;
+      if (
+        distance <= innerRadius
+      ) {
+
+        innerDark +=
+          darkness;
+
         innerCount++;
 
-      } else if (
+      }
+
+      else if (
         distance >= ringInner &&
         distance <= ringOuter
       ) {
 
-        ringDark += darkness;
+        ringDark +=
+          darkness;
+
         ringCount++;
 
       }
@@ -1012,177 +1303,309 @@ function measureBubble(canvas, ctx, nx, ny) {
 
   }
 
+
   if (
     innerCount === 0 ||
     ringCount === 0
   ) {
+
     return 0;
+
   }
+
 
   const innerAverage =
-    innerDark / innerCount;
+    innerDark /
+    innerCount;
 
   const ringAverage =
-    ringDark / ringCount;
-
-  /*
-    A properly shaded bubble should have a
-    significantly darker center than its outline.
-  */
+    ringDark /
+    ringCount;
 
   const difference =
-    innerAverage - ringAverage;
+    innerAverage -
+    ringAverage;
 
-  /*
-    Require reasonable center darkness too.
-  */
 
-  if (innerAverage < 95) {
+  if (
+    innerAverage < 95
+  ) {
+
     return 0;
+
   }
+
 
   return difference;
-}
-
-
-/* =========================================================
-   SEND RESULT BACK TO APPS SCRIPT
-   ========================================================= */
-
-function sendResultToAppsScript(payload) {
-
-  resultBox.textContent =
-    "Student LRN: " + payload.lrn +
-    "\nTest ID: " + payload.testId +
-    "\n\n50 answers detected.\n\nSending result to School OMR Scanner...";
-
-  if (window.opener) {
-
-    window.opener.postMessage(
-      {
-        type: "BOSSING_OMR_RESULT",
-        payload: payload
-      },
-      "*"
-    );
-
-    statusBox.textContent =
-      "Result sent to School OMR Scanner. Waiting for confirmation...";
-
-  } else {
-
-    statusBox.textContent =
-      "No parent Apps Script window was found. Open the camera from the School OMR Scanner Web App.";
-
-  }
 
 }
 
 
 /* =========================================================
-   RECEIVE SAVE CONFIRMATION FROM APPS SCRIPT
+   SEND TO APPS SCRIPT
    ========================================================= */
 
-window.addEventListener("message", function(event) {
+function sendResultToAppsScript(
+  payload
+) {
 
-  if (!event.data) {
+  if (
+    !window.opener
+  ) {
+
+    readyMessage.className =
+      "error";
+
+    readyMessage.textContent =
+      "❌ NO SCHOOL OMR WINDOW";
+
+    statusBox.textContent =
+      "Please open the camera from the School OMR Scanner Web App.";
+
+    captureInProgress = false;
+
     return;
+
   }
 
- if (event.data.type === "BOSSING_SAVED") {
 
-  captureInProgress = false;
-  qrLocked = true;
+  window.opener.postMessage(
 
-  readyMessage.textContent =
-    "🟢 SCAN SUCCESSFUL — RESULT SAVED";
+    {
+      type:
+        "BOSSING_OMR_RESULT",
 
-  readyMessage.style.background =
-    "#087f23";
+      payload:
+        payload
+    },
+
+    "*"
+
+  );
+
 
   statusBox.textContent =
-    "✅ SUCCESS! The student's result has been sent to SCAN_RESULTS.";
+    "Result sent to School OMR Scanner. Please wait for confirmation...";
 
-  resultBox.textContent =
-    "SCAN SUCCESSFUL\n\n" +
-    "Student LRN: " + detectedLRN + "\n" +
-    "Test ID: " + detectedTestID + "\n\n" +
-    "The result was successfully sent to School OMR Scanner.";
+}
 
-  nextBtn.style.display = "block";
 
-  captureBtn.style.display = "none";
+/* =========================================================
+   RECEIVE APPS SCRIPT RESPONSE
+   ========================================================= */
+
+window.addEventListener(
+  "message",
+  function(event) {
+
+    if (
+      !event.data ||
+      !event.data.type
+    ) {
+      return;
+    }
+
+
+    /* ================================
+       SAVED SUCCESSFULLY
+       ================================ */
+
+    if (
+      event.data.type ===
+      "BOSSING_SAVED"
+    ) {
+
+      captureInProgress = false;
+      qrLocked = true;
+
+      readyMessage.className =
+        "success";
+
+      readyMessage.textContent =
+        "🟢 SCAN SUCCESSFUL — RESULT SAVED";
+
+
+      statusBox.textContent =
+        "✅ SUCCESS! The result has been saved to SCAN_RESULTS.";
+
+
+      resultBox.textContent =
+        "SCAN SUCCESSFUL\n\n" +
+        "Student LRN: " +
+        detectedLRN +
+        "\n" +
+        "Test ID: " +
+        detectedTestID +
+        "\n\n" +
+        "✅ Result successfully saved to SCAN_RESULTS.\n\n" +
+        "You may now scan the next student.";
+
+
+      nextBtn.style.display =
+        "block";
+
+      captureBtn.style.display =
+        "none";
+
+      return;
+
+    }
+
+
+    /* ================================
+       DUPLICATE
+       ================================ */
+
+    if (
+      event.data.type ===
+      "BOSSING_DUPLICATE"
+    ) {
+
+      captureInProgress = false;
+      qrLocked = true;
+
+      readyMessage.className =
+        "warning";
+
+      readyMessage.textContent =
+        "🟠 ALREADY SCANNED";
+
+
+      statusBox.textContent =
+        "This student and test combination has already been scanned.";
+
+
+      resultBox.textContent =
+        "DUPLICATE SCAN\n\n" +
+        "Student LRN: " +
+        detectedLRN +
+        "\n" +
+        "Test ID: " +
+        detectedTestID +
+        "\n\n" +
+        "⚠️ No duplicate row was added.";
+
+
+      nextBtn.style.display =
+        "block";
+
+      captureBtn.style.display =
+        "none";
+
+      return;
+
+    }
+
+
+    /* ================================
+       SAVE ERROR
+       ================================ */
+
+    if (
+      event.data.type ===
+      "BOSSING_SAVE_ERROR"
+    ) {
+
+      captureInProgress = false;
+
+      readyMessage.className =
+        "error";
+
+      readyMessage.textContent =
+        "❌ SAVE FAILED";
+
+
+      statusBox.textContent =
+        "The scan was captured, but Apps Script could not save it.";
+
+
+      resultBox.textContent =
+        "SAVE ERROR\n\n" +
+        String(
+          event.data.message ||
+          "Unknown error"
+        ) +
+        "\n\nPlease do not scan the same paper repeatedly until the problem is checked.";
+
+
+      captureBtn.disabled =
+        false;
+
+      return;
+
+    }
+
   }
-
-if (event.data.type === "BOSSING_DUPLICATE") {
-
-  captureInProgress = false;
-  qrLocked = true;
-
-  readyMessage.textContent =
-    "🟠 ALREADY SCANNED";
-
-  readyMessage.style.background =
-    "#8a5a00";
-
-  statusBox.textContent =
-    "⚠️ This student and test combination has already been scanned.";
-
-  resultBox.textContent =
-    "DUPLICATE SCAN\n\n" +
-    "Student LRN: " + detectedLRN + "\n" +
-    "Test ID: " + detectedTestID + "\n\n" +
-    "No duplicate row was added.";
-
-  nextBtn.style.display = "block";
-
-  captureBtn.style.display = "none";
-  }
-
-});
+);
 
 
 /* =========================================================
    NEXT STUDENT
    ========================================================= */
 
-nextBtn.addEventListener("click", function() {
+nextBtn.addEventListener(
+  "click",
+  function() {
 
-  detectedLRN = "";
-  detectedTestID = "";
-  qrLocked = false;
-captureInProgress = false;
+    detectedLRN = "";
+    detectedTestID = "";
 
-  studentCheck.className = "check waiting";
-  studentCheck.textContent =
-    "⏳ Student QR: Looking...";
+    qrLocked = false;
+    captureInProgress = false;
 
-  testCheck.className = "check waiting";
-  testCheck.textContent =
-    "⏳ Test QR: Looking...";
 
-  panelCheck.className = "check waiting";
-  panelCheck.textContent =
-    "⏳ OMR Panel: Position ONE student panel inside green frame";
+    studentCheck.className =
+      "check waiting";
 
-  readyMessage.textContent =
-    "WAITING FOR QR CODES...";
+    studentCheck.textContent =
+      "⏳ Student QR: Looking...";
 
-  readyMessage.style.background =
-    "#333";
 
-  statusBox.textContent =
-    "Position the next student panel inside the green frame.";
+    testCheck.className =
+      "check waiting";
 
-  resultBox.textContent = "";
+    testCheck.textContent =
+      "⏳ Test QR: Looking...";
 
-  captureBtn.style.display = "block";
-  captureBtn.disabled = true;
 
-  nextBtn.style.display = "none";
+    panelCheck.className =
+      "check waiting";
 
-});
+    panelCheck.textContent =
+      "⏳ OMR Panel: Position inside green frame";
 
+
+    readyMessage.className = "";
+
+    readyMessage.textContent =
+      "WAITING FOR QR CODES...";
+
+    readyMessage.style.background =
+      "#333";
+
+
+    statusBox.textContent =
+      "Position the NEXT student panel inside the green frame.";
+
+
+    resultBox.textContent = "";
+
+
+    captureBtn.style.display =
+      "block";
+
+    captureBtn.disabled =
+      true;
+
+
+    nextBtn.style.display =
+      "none";
+
+
+    startQRScanning();
+
+  }
+);
 
 </script>
 
