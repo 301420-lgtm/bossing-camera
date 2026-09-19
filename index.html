@@ -2,10 +2,9 @@
 <html>
 <head>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>School OMR Scanner</title>
+<title>School OMR Scanner - BOSSING v3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
@@ -54,6 +53,7 @@ video {
   background: #000;
 }
 
+
 /* GREEN GUIDE */
 
 #guide {
@@ -79,6 +79,7 @@ video {
   font-size: 14px;
   text-shadow: 0 1px 3px #000;
 }
+
 
 /* CHECKLIST */
 
@@ -114,6 +115,7 @@ video {
   font-weight: bold;
 }
 
+
 /* MAIN STATUS */
 
 #readyMessage {
@@ -137,6 +139,7 @@ video {
   background: #222;
   font-size: 15px;
 }
+
 
 /* BUTTONS */
 
@@ -175,6 +178,7 @@ button {
   display: none;
 }
 
+
 /* RESULT */
 
 #result {
@@ -194,7 +198,8 @@ canvas {
   display: none;
 }
 
-/* SUCCESS / PROCESSING / WARNING / ERROR */
+
+/* STATUS COLORS */
 
 .success {
   background: #087f23 !important;
@@ -214,23 +219,32 @@ canvas {
 }
 
 </style>
+
 </head>
+
 
 <body>
 
 <h1>📷 SCHOOL OMR SCANNER</h1>
 
 <div id="instruction">
-  Fit ONE student's complete answer-sheet panel inside the green frame.
+
+  Fit ONE student's complete answer-sheet panel inside
+  the green frame.
+
   Student QR, Test QR, and all 50 answers must be visible.
+
 </div>
+
 
 <div id="cameraArea">
 
-  <video id="video"
-         autoplay
-         playsinline
-         muted></video>
+  <video
+    id="video"
+    autoplay
+    playsinline
+    muted>
+  </video>
 
   <div id="guide">
 
@@ -242,52 +256,65 @@ canvas {
 
 </div>
 
+
 <div id="checklist">
 
-  <div id="cameraCheck"
-       class="check waiting">
+  <div
+    id="cameraCheck"
+    class="check waiting">
     ⏳ Camera: Waiting
   </div>
 
-  <div id="studentCheck"
-       class="check waiting">
+  <div
+    id="studentCheck"
+    class="check waiting">
     ⏳ Student QR: Looking...
   </div>
 
-  <div id="testCheck"
-       class="check waiting">
+  <div
+    id="testCheck"
+    class="check waiting">
     ⏳ Test QR: Looking...
   </div>
 
-  <div id="panelCheck"
-       class="check waiting">
+  <div
+    id="panelCheck"
+    class="check waiting">
     ⏳ OMR Panel: Position inside green frame
   </div>
 
 </div>
 
+
 <div id="readyMessage">
   WAITING FOR QR CODES...
 </div>
+
 
 <button id="startBtn">
   📷 START CAMERA
 </button>
 
-<button id="captureBtn"
-        disabled>
+
+<button
+  id="captureBtn"
+  disabled>
   📸 CAPTURE STUDENT
 </button>
+
 
 <button id="nextBtn">
   ➡️ READY FOR NEXT STUDENT
 </button>
 
+
 <div id="status">
   Camera has not started.
 </div>
 
+
 <div id="result"></div>
+
 
 <canvas id="workCanvas"></canvas>
 
@@ -295,11 +322,23 @@ canvas {
 <script>
 
 /* =========================================================
-   APPS SCRIPT WEB APP
+   BOSSING CAMERA v3
+
+   IMPORTANT:
+   NO window.opener
+   NO postMessage
+   NO NO-SCHOOL-OMR-WINDOW LOGIC
+
+   DATA IS SENT DIRECTLY TO APPS SCRIPT USING POST.
+   ========================================================= */
+
+
+/* =========================================================
+   YOUR APPS SCRIPT WEB APP
    ========================================================= */
 
 const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbwOSW8l1H5_WqOnfRv4sklhhGNQGXm_-9-FvciaSTYrmR6vS2X-A3_yCiXYhN7Di0ay4A/exec";
+"https://script.google.com/macros/s/AKfycbwOSW8l1H5_WqOnfRv4sklhhGNQGXm_-9-FvciaSTYrmR6vS2X-A3_yCiXYhN7Di0ay4A/exec";
 
 
 /* =========================================================
@@ -370,6 +409,7 @@ startBtn.addEventListener(
       statusBox.textContent =
         "Requesting camera permission...";
 
+
       stream =
         await navigator.mediaDevices.getUserMedia({
 
@@ -397,6 +437,7 @@ startBtn.addEventListener(
       video.srcObject =
         stream;
 
+
       await video.play();
 
 
@@ -418,6 +459,7 @@ startBtn.addEventListener(
       startQRScanning();
 
     }
+
 
     catch(error) {
 
@@ -441,7 +483,7 @@ startBtn.addEventListener(
 
 
 /* =========================================================
-   CONTINUOUS QR SCANNING
+   QR SCANNING TIMER
    ========================================================= */
 
 function startQRScanning() {
@@ -497,7 +539,7 @@ function stopQRScanning() {
 
 
 /* =========================================================
-   GET ACTUAL VIDEO AREA
+   VIDEO CONTENT RECTANGLE
    ========================================================= */
 
 function getVideoContentRect() {
@@ -542,6 +584,7 @@ function getVideoContentRect() {
 
   }
 
+
   else {
 
     height =
@@ -574,7 +617,7 @@ function getVideoContentRect() {
 
 
 /* =========================================================
-   CAPTURE GREEN FRAME AREA
+   CAPTURE GREEN FRAME
    ========================================================= */
 
 function getPanelCropCanvas() {
@@ -641,25 +684,29 @@ function getPanelCropCanvas() {
 
   const sx =
     Math.round(
-      x * video.videoWidth
+      x *
+      video.videoWidth
     );
 
 
   const sy =
     Math.round(
-      y * video.videoHeight
+      y *
+      video.videoHeight
     );
 
 
   const sw =
     Math.round(
-      w * video.videoWidth
+      w *
+      video.videoWidth
     );
 
 
   const sh =
     Math.round(
-      h * video.videoHeight
+      h *
+      video.videoHeight
     );
 
 
@@ -697,13 +744,15 @@ function getPanelCropCanvas() {
 
   canvas.width =
     Math.round(
-      sw * scale
+      sw *
+      scale
     );
 
 
   canvas.height =
     Math.round(
-      sh * scale
+      sh *
+      scale
     );
 
 
@@ -711,7 +760,8 @@ function getPanelCropCanvas() {
     canvas.getContext(
       "2d",
       {
-        willReadFrequently: true
+        willReadFrequently:
+          true
       }
     );
 
@@ -722,6 +772,7 @@ function getPanelCropCanvas() {
 
     sx,
     sy,
+
     sw,
     sh,
 
@@ -767,7 +818,9 @@ function scanLiveQRCodes() {
 
 
   const found =
-    scanQRCodeCandidates(canvas);
+    scanQRCodeCandidates(
+      canvas
+    );
 
 
   let student = "";
@@ -809,8 +862,6 @@ function scanLiveQRCodes() {
   );
 
 
-  /* STUDENT QR */
-
   if (student) {
 
     detectedLRN =
@@ -827,8 +878,6 @@ function scanLiveQRCodes() {
 
   }
 
-
-  /* TEST QR */
 
   if (test) {
 
@@ -847,14 +896,13 @@ function scanLiveQRCodes() {
   }
 
 
-  /* BOTH FOUND */
-
   if (
     detectedLRN &&
     detectedTestID
   ) {
 
-    qrLocked = true;
+    qrLocked =
+      true;
 
 
     captureBtn.disabled =
@@ -893,7 +941,9 @@ function scanLiveQRCodes() {
    QR SEARCH
    ========================================================= */
 
-function scanQRCodeCandidates(canvas) {
+function scanQRCodeCandidates(
+  canvas
+) {
 
   const results = [];
 
@@ -1008,13 +1058,15 @@ function scanQRCodeCandidates(canvas) {
 
       qrCanvas.width =
         Math.round(
-          rw * scale
+          rw *
+          scale
         );
 
 
       qrCanvas.height =
         Math.round(
-          rh * scale
+          rh *
+          scale
         );
 
 
@@ -1022,7 +1074,8 @@ function scanQRCodeCandidates(canvas) {
         qrCanvas.getContext(
           "2d",
           {
-            willReadFrequently: true
+            willReadFrequently:
+              true
           }
         );
 
@@ -1033,6 +1086,7 @@ function scanQRCodeCandidates(canvas) {
 
         rx,
         ry,
+
         rw,
         rh,
 
@@ -1110,7 +1164,7 @@ function scanQRCodeCandidates(canvas) {
 
 
 /* =========================================================
-   CAPTURE
+   CAPTURE STUDENT
    ========================================================= */
 
 captureBtn.addEventListener(
@@ -1132,10 +1186,9 @@ captureBtn.addEventListener(
     }
 
 
-    /* LOCK EVERYTHING */
-
     captureInProgress =
       true;
+
 
     qrLocked =
       true;
@@ -1196,8 +1249,6 @@ captureBtn.addEventListener(
     }
 
 
-    /* READ ALL 50 ANSWERS */
-
     const answers =
       readOMR(canvas);
 
@@ -1216,8 +1267,6 @@ captureBtn.addEventListener(
     };
 
 
-    /* SHOW PROCESSING */
-
     resultBox.textContent =
 
       "Student LRN: " +
@@ -1234,19 +1283,7 @@ captureBtn.addEventListener(
 
       "\n\n" +
 
-      "Sending result to School OMR Scanner..." ;
-
-
-    /*
-     ========================================================
-     DIRECT CONNECTION TO APPS SCRIPT
-     ========================================================
-
-     IMPORTANT:
-     We no longer use window.opener.
-     The browser directly opens the Apps Script Web App.
-
-    */
+      "Sending result to School OMR Scanner...";
 
 
     sendResultToAppsScript(
@@ -1263,7 +1300,9 @@ captureBtn.addEventListener(
    ONLY FULLY SHADED COUNTS
    ========================================================= */
 
-function readOMR(canvas) {
+function readOMR(
+  canvas
+) {
 
   const ctx =
     canvas.getContext(
@@ -1308,7 +1347,8 @@ function readOMR(canvas) {
   ) {
 
     const row =
-      (item - 1) % 25;
+      (item - 1) %
+      25;
 
 
     const y =
@@ -1321,7 +1361,8 @@ function readOMR(canvas) {
       ) *
 
       (
-        row / 24
+        row /
+        24
       );
 
 
@@ -1359,8 +1400,6 @@ function readOMR(canvas) {
 
     }
 
-
-    /* ONLY FULLY SHADED */
 
     const full = [];
 
@@ -1591,11 +1630,8 @@ function measureBubble(
       const distance =
         Math.sqrt(
 
-          px *
-          px +
-
-          py *
-          py
+          px * px +
+          py * py
 
         );
 
@@ -1623,11 +1659,8 @@ function measureBubble(
       if (
 
         gx < 0 ||
-
         gy < 0 ||
-
         gx >= canvas.width ||
-
         gy >= canvas.height
 
       ) {
@@ -1650,11 +1683,8 @@ function measureBubble(
       if (
 
         localX < 0 ||
-
         localY < 0 ||
-
         localX >= width ||
-
         localY >= height
 
       ) {
@@ -1667,14 +1697,10 @@ function measureBubble(
       const index =
 
         (
-
           localY *
           width +
-
           localX
-
         ) *
-
         4;
 
 
@@ -1697,9 +1723,7 @@ function measureBubble(
       const gray =
 
         0.299 * r +
-
         0.587 * g +
-
         0.114 * b;
 
 
@@ -1745,7 +1769,6 @@ function measureBubble(
   if (
 
     innerCount === 0 ||
-
     ringCount === 0
 
   ) {
@@ -1756,19 +1779,16 @@ function measureBubble(
 
 
   const innerAverage =
-
     innerDark /
     innerCount;
 
 
   const ringAverage =
-
     ringDark /
     ringCount;
 
 
   const difference =
-
     innerAverage -
     ringAverage;
 
@@ -1788,50 +1808,80 @@ function measureBubble(
 
 
 /* =========================================================
-   SEND DIRECTLY TO APPS SCRIPT
+   SEND RESULT DIRECTLY TO APPS SCRIPT
    ========================================================= */
 
 function sendResultToAppsScript(
   payload
 ) {
 
-  /*
-   * Convert the scan into a compact JSON string.
-   */
-
-  const data =
-    JSON.stringify(payload);
-
-
-  /*
-   * Build the Apps Script Web App URL.
-   */
-
-  const url =
-
-    APPS_SCRIPT_URL +
-
-    "?action=saveOmr&data=" +
-
-    encodeURIComponent(data);
-
-
-  /*
-   * IMPORTANT:
-   *
-   * We deliberately navigate directly to Apps Script.
-   *
-   * No window.opener.
-   * No postMessage.
-   * No School OMR window requirement.
-   */
-
   statusBox.textContent =
     "📡 Sending scan directly to School OMR Scanner...";
 
 
-  window.location.href =
-    url;
+  /*
+   * NORMAL HTML FORM POST
+   *
+   * This completely eliminates:
+   *
+   * window.opener
+   * postMessage
+   * NO SCHOOL OMR WINDOW
+   */
+
+  const form =
+    document.createElement(
+      "form"
+    );
+
+
+  form.method =
+    "POST";
+
+
+  form.action =
+    APPS_SCRIPT_URL;
+
+
+  form.target =
+    "_self";
+
+
+  form.style.display =
+    "none";
+
+
+  const input =
+    document.createElement(
+      "input"
+    );
+
+
+  input.type =
+    "hidden";
+
+
+  input.name =
+    "data";
+
+
+  input.value =
+    JSON.stringify(
+      payload
+    );
+
+
+  form.appendChild(
+    input
+  );
+
+
+  document.body.appendChild(
+    form
+  );
+
+
+  form.submit();
 
 }
 
